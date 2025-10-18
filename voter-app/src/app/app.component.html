@@ -1,0 +1,24 @@
+<div class="app-container">
+  <nav class="navbar">
+    <div class="nav-brand">Voter App</div>
+    <div class="nav-links">
+      <button 
+        class="nav-link" 
+        [class.active]="currentView === 'search'"
+        (click)="showSearch()">
+        Search
+      </button>
+      <button 
+        class="nav-link" 
+        [class.active]="currentView === 'dashboard'"
+        (click)="showDashboard()">
+        Dashboard
+      </button>
+    </div>
+  </nav>
+
+  <main class="main-content">
+    <app-search *ngIf="currentView === 'search'"></app-search>
+    <app-dashboard *ngIf="currentView === 'dashboard'"></app-dashboard>
+  </main>
+</div>

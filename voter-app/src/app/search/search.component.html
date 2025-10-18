@@ -1,0 +1,71 @@
+<div class="search-container">
+  <div class="search-form">
+    <div class="form-group">
+      <label for="searchField">Search By:</label>
+      <select id="searchField" [(ngModel)]="selectedField" class="form-control">
+        <option value="">Select Field</option>
+        <option *ngFor="let field of searchFields" [value]="field.value">
+          {{field.label}}
+        </option>
+      </select>
+    </div>
+
+    <div class="form-group" *ngIf="selectedField">
+      <label for="searchValue">Search Value:</label>
+      <input 
+        id="searchValue" 
+        type="text" 
+        [(ngModel)]="searchValue" 
+        class="form-control" 
+        placeholder="Enter search value..."
+        (keyup.enter)="onSearch()">
+    </div>
+
+    <button class="btn btn-primary" (click)="onSearch()" [disabled]="!selectedField || !searchValue">
+      Search
+    </button>
+  </div>
+
+  <div class="search-results" *ngIf="searchResults.length > 0">
+    <h3>Search Results ({{searchResults.length}})</h3>
+    <div class="cards-container">
+      <div *ngFor="let voter of searchResults" class="voter-card">
+        <div class="card-header">
+          <h4>{{voter.e_first_name}} {{voter.e_middle_name}} {{voter.e_last_name}}</h4>
+        </div>
+        <div class="card-body">
+          <div class="voter-details">
+            <p><strong>Assembly No:</strong> {{voter.assembly_no}}</p>
+            <p><strong>Part No:</strong> {{voter.part_no}}</p>
+            <p><strong>Booth ID:</strong> {{voter.boothid}}</p>
+            <p><strong>Voter Card ID:</strong> {{voter.vcardid}}</p>
+            <p><strong>Assembly Name:</strong> {{voter.e_assemblyname}}</p>
+            <p><strong>Age:</strong> {{voter.age}}</p>
+            <p><strong>Sex:</strong> {{voter.sex}}</p>
+          </div>
+          
+          <div class="whatsapp-section">
+            <div class="mobile-input">
+              <input 
+                type="tel" 
+                placeholder="Enter mobile number"
+                [value]="mobileNumbers[voter.id] || ''"
+                (input)="onMobileNumberChange(voter.id, $any($event.target).value)"
+                class="form-control">
+            </div>
+            <button 
+              class="btn btn-success whatsapp-btn"
+              (click)="shareOnWhatsApp(voter)"
+              [disabled]="!isWhatsAppEnabled(voter.id)">
+              <i class="fab fa-whatsapp"></i> Share via WhatsApp
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="searchResults.length === 0 && selectedField && searchValue" class="no-results">
+    No results found for your search criteria.
+  </div>
+</div>
