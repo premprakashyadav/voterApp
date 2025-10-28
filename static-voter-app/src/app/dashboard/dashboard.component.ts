@@ -60,7 +60,7 @@ export class DashboardComponent implements OnInit {
   isLoading: boolean = false;
   showCreateFavoriteModal: boolean = false;
 
-  constructor(private voterService: VoterService, private votersService: VotersService) {}
+  constructor(private voterService: VoterService) {}
 
   ngOnInit(): void {
     this.voterService.loadVotersData().subscribe(data => {
@@ -119,19 +119,6 @@ export class DashboardComponent implements OnInit {
     if (this.selectedRows.length > 0) {
       this.showCreateFavoriteModal = true;
     }
-  }
-
-    // Export data with assembly filter
-  exportAssemblyData(): void {
-    const filter = 'assembly_no > 130 && assembly_no < 133';
-    this.votersService.exportFilteredData(filter).subscribe({
-      next: (data: string | any[]) => {
-        console.log('Exported assembly data:', data.length);
-      },
-      error: (error: any) => {
-        console.error('Export error:', error);
-      }
-    });
   }
 
   createFavorite(): void {

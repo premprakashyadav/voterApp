@@ -40,47 +40,28 @@ export class SearchComponent implements OnInit {
     //     console.error('Error loading data:', error);
     //   }
     // });
-    // this.voterService.loadVotersData().subscribe({
-    //   next: (data) => {
-    //     this.isLoading = false;
-    //     console.log('Loaded voters data:', data.length);
-    //   },
-    //   error: (error) => {
-    //     this.isLoading = false;
-    //     console.error('Error loading data:', error);
-    //   }
-    // });
+    this.voterService.loadVotersData().subscribe({
+      next: (data) => {
+        this.isLoading = false;
+        console.log('Loaded voters data:', data.length);
+      },
+      error: (error) => {
+        this.isLoading = false;
+        console.error('Error loading data:', error);
+      }
+    });
   }
 
-  // onSearch(): void {
-  //   debugger;
-  //   if (this.selectedField && this.searchValue) {
-  //     this.searchResults = this.voterService.searchVoters(this.selectedField, this.searchValue);
-  //   } else {
-  //     this.searchResults = [];
-  //   }
-  // }
-
-    onSearch(): void {
+  onSearch(): void {
+    debugger;
     if (this.selectedField && this.searchValue) {
-      this.isLoading = true;
-      this.votersService.searchVoters(this.selectedField, this.searchValue).subscribe({
-        next: (results: any) => {
-          this.isLoading = false;
-          this.searchResults = results;
-        },
-        error: (error: any) => {
-          this.isLoading = false;
-          console.error('Search error:', error);
-        }
-      });
+      this.searchResults = this.voterService.searchVoters(this.selectedField, this.searchValue);
     } else {
-      // If no search criteria, show all data
-      this.votersService.loadVotersData().subscribe((data: any) => {
-        this.searchResults = data;
-      });
+      this.searchResults = [];
     }
   }
+
+
 
   onMobileNumberChange(voterId: string, number: string): void {
     this.mobileNumbers[voterId] = number;
@@ -91,18 +72,20 @@ export class SearchComponent implements OnInit {
     if (!mobileNumber) return;
 
     // Clean the mobile number (remove spaces, dashes, etc.)
-    const cleanNumber = mobileNumber.replace(/\D/g, '');
-    
+    const cleanNumber = mobileNumber.replace(/\D/g, ''); 
+const imageUrl = "https://photos.app.goo.gl/dyZYH6Akt9bAv1Nh8";
     const message = `Voter Information:
 Name: ${voter.e_first_name} ${voter.e_middle_name} ${voter.e_last_name}
 Assembly: ${voter.e_assemblyname}
 Voter ID: ${voter.vcardid}
 Booth: ${voter.boothid}
 Part No: ${voter.part_no}
-Address: ${voter.e_address}`;
+Address: ${voter.e_address}
+From: ${imageUrl}`;
+
 
     const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/${cleanNumber}?text=${encodedMessage}`;
+    const whatsappUrl = `https://wa.me/+91${cleanNumber}?text=${encodedMessage}`;
     
     window.open(whatsappUrl, '_blank');
   }

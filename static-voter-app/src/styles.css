@@ -1,0 +1,23 @@
+/* You can add global styles to this file, and also import other style files */
+/* Add this to your global styles */
+/* Add Font Awesome for WhatsApp icon */
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.ag-theme-alpine {
+  --ag-header-height: 40px;
+  --ag-row-height: 40px;
+}
+

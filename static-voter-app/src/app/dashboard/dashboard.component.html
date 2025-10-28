@@ -1,0 +1,102 @@
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h2>Voter Dashboard</h2>
+    
+    <div class="favorites-controls">
+      <div class="favorite-dropdown">
+        <label>Favorites:</label>
+        <select [(ngModel)]="selectedFavorite" (change)="onFavoriteChange()" class="form-control">
+          <option value="all">All Voters</option>
+          <option *ngFor="let fav of favorites" [value]="fav.id">{{fav.name}} ({{fav.voters.length}})</option>
+        </select>
+      </div>
+
+      <button 
+        class="btn btn-primary" 
+        (click)="openCreateFavoriteModal()" 
+        [disabled]="selectedRows.length === 0">
+        Create Favorite ({{selectedRows.length}})
+      </button>
+    </div>
+  </div>
+
+  <div class="favorites-list" *ngIf="favorites.length > 0">
+    <h4>Favorite Lists:</h4>
+    <div class="favorite-items">
+      <div *ngFor="let fav of favorites" class="favorite-item">
+        <div *ngIf="!isEditingFavorite[fav.id]" class="favorite-display">
+          <span class="favorite-name">{{fav.name}} ({{fav.voters.length}} voters)</span>
+          <div class="favorite-actions">
+            <button class="btn btn-sm btn-outline-primary" (click)="startEditFavorite(fav)">
+              Edit
+            </button>
+            <button class="btn btn-sm btn-outline-danger" (click)="deleteFavorite(fav.id)">
+              Delete
+            </button>
+          </div>
+        </div>
+        <div *ngIf="isEditingFavorite[fav.id]" class="favorite-edit">
+          <input 
+            type="text" 
+            [(ngModel)]="editFavoriteName" 
+            class="form-control-sm"
+            placeholder="Favorite name">
+          <button class="btn btn-sm btn-success" (click)="saveEditFavorite(fav)">
+            Save
+          </button>
+          <button class="btn btn-sm btn-secondary" (click)="cancelEditFavorite(fav.id)">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ag-grid-container">
+    <!-- Add themeClass binding -->
+    <ag-grid-angular style="height:100%"
+     [class]="themeClass"
+     theme="legacy"
+      class="ag-theme-alpine"
+      [rowData]="rowData"
+      [columnDefs]="columnDefs"
+      [defaultColDef]="defaultColDef"
+      [rowSelection]="'multiple'"
+      [suppressRowClickSelection]="true"
+      [pagination]="true"
+      [paginationPageSize]="20"
+      (gridReady)="onGridReady($event)"
+      (selectionChanged)="onSelectionChanged()"
+      (firstDataRendered)="onFirstDataRendered()">
+    </ag-grid-angular>
+  </div>
+
+  <!-- Create Favorite Modal -->
+  <div *ngIf="showCreateFavoriteModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Create New Favorite</h3>
+        <button class="close-btn" (click)="showCreateFavoriteModal = false">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>Selected {{selectedRows.length}} voters</p>
+        <div class="form-group">
+          <label>Favorite Name:</label>
+          <input 
+            type="text" 
+            [(ngModel)]="newFavoriteName" 
+            class="form-control"
+            placeholder="Enter favorite name"
+            (keyup.enter)="createFavorite()"
+            autofocus>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="showCreateFavoriteModal = false">Cancel</button>
+        <button class="btn btn-primary" (click)="createFavorite()" [disabled]="!newFavoriteName.trim()">
+          Create Favorite
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

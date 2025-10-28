@@ -23,9 +23,9 @@
     <button class="btn btn-primary" (click)="onSearch()" [disabled]="!selectedField || !searchValue">
       Search
     </button>
-    <button class="btn btn-primary" (click)="exportData()" [disabled]="!selectedField || !searchValue">
+    <!-- <button class="btn btn-primary" (click)="exportData()" [disabled]="!selectedField || !searchValue">
       Export
-    </button>
+    </button> -->
   </div>
 
   <div class="search-results" *ngIf="searchResults.length > 0">

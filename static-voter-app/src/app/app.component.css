@@ -1,0 +1,45 @@
+.app-container {
+  min-height: 100vh;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  background-color: #343a40;
+  color: white;
+  height: 60px;
+}
+
+.nav-brand {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.nav-links {
+  display: flex;
+  gap: 15px;
+}
+
+.nav-link {
+  background: none;
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.nav-link:hover {
+  background-color: #495057;
+}
+
+.nav-link.active {
+  background-color: #007bff;
+}
+
+.main-content {
+  padding: 0;
+}
