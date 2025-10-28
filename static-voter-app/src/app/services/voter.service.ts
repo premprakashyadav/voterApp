@@ -14,7 +14,7 @@ export class VoterService {
   
   // API endpoint - using JSON Server
   // private apiUrl = '/api/voters'; // local
-  private apiUrl = 'http://localhost:3000/voters';
+  private apiUrl = '/assets/data/voters.json';
 
   constructor(private http: HttpClient) {
     this.loadFavoritesFromStorage();
