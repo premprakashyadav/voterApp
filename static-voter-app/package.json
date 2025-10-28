@@ -8,7 +8,7 @@
     "build:prod": "ng build --configuration production",
     "serve:prod": "npm run build:prod && concurrently \"npm run json-server\" \"npx http-server dist/voter-app -p 8080\"",
     "watch": "ng build --watch --configuration development",
-    "json": "json-server --watch src/assets/data/voters.json --port 3000",
+    "json": "json-server --watch voters.json --port 3000",
     "build-and-serve": "ng build && concurrently \"npm run json\" \"http-server dist/voter-app -p 4200\"",
     "test": "ng test",
     "deploy": "ng build --base-href https://yourusername.github.io/voter-app/ && npx angular-cli-ghpages --dir=dist/voter-app",
