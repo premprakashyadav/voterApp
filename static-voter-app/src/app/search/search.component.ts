@@ -74,14 +74,16 @@ export class SearchComponent implements OnInit {
     // Clean the mobile number (remove spaces, dashes, etc.)
     const cleanNumber = mobileNumber.replace(/\D/g, ''); 
 const imageUrl = "https://photos.app.goo.gl/dyZYH6Akt9bAv1Nh8";
-    const message = `Voter Information:
-Name: ${voter.e_first_name} ${voter.e_middle_name} ${voter.e_last_name}
-Assembly: ${voter.e_assemblyname}
-Voter ID: ${voter.vcardid}
-Booth: ${voter.boothid}
-Part No: ${voter.part_no}
-Address: ${voter.e_address}
-From: ${imageUrl}`;
+    const message = `नमस्कार:
+मतदाता क्रमांक: ${voter.vcardid}
+यादिभाग क्रमांक: ${voter.part_no}
+मतदाता नाव: ${voter.e_first_name} ${voter.e_middle_name} ${voter.e_last_name}
+विधानसभा क्रमांक: ${voter.e_assemblyname}
+मतदान केंद्र: ${voter.boothid}  ${voter.e_address}
+निशाणी: कमळ
+उमेदवार: पंकज डी. देशमुख
+भारतीय जनता पार्टी
+${imageUrl}`;
 
 
     const encodedMessage = encodeURIComponent(message);

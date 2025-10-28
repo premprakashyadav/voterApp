@@ -13,7 +13,8 @@ export class VoterService {
   private readonly FAVORITES_KEY = 'voter_favorites';
   
   // API endpoint - using JSON Server
-  private apiUrl = '/api/voters';
+  // private apiUrl = '/api/voters'; // local
+  private apiUrl = 'http://localhost:3000/voters';
 
   constructor(private http: HttpClient) {
     this.loadFavoritesFromStorage();
