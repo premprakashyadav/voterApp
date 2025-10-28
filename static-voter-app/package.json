@@ -14,7 +14,7 @@
     "deploy": "ng build --base-href https://yourusername.github.io/voter-app/ && npx angular-cli-ghpages --dir=dist/voter-app",
     "predeploy": "npm run build:prod",
     "render-build": "npm run build:prod",
-    "render-start": "npx http-server dist/voter-app -p $PORT -c-1"
+    "render-start": "npx http-server dist/voter-app/browser -p $PORT -c-1"
   },
   "private": true,
   "dependencies": {
