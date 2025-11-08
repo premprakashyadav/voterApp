@@ -13,15 +13,32 @@
 }
 
 .form-group {
-  flex: 1;
-  min-width: 200px;
+    min-width: 200px;
+    display: flex;
+    width: 100%;
+    color: #fff;
+    vertical-align: top;
 }
 
 .form-control {
-  width: 100%;
+  width: 80%;
   padding: 8px 12px;
   border: 1px solid #ddd;
   border-radius: 4px;
+  margin-right: 5px;
+}
+.form-group > label {
+  color: #fff;
+  font-size: 20px;
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+.form-group label {color: #fff;}
+.form-check-inline {
+    display: inline-block;
+    margin-right: 1rem;
+    margin-top: 5px;
 }
 
 .btn {
@@ -47,7 +64,6 @@
 }
 
 .btn-success:disabled {
-  background-color: #6c757d;
   cursor: not-allowed;
 }
 
@@ -59,10 +75,11 @@
 }
 
 .voter-card {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 15px;
-  background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    box-shadow: 5px 5px 5px #974e28, -5px -5px 5px #974e28, 5px -5px 5px #974e28, -5px 5px 5px #974e28;
 }
 
 .card-header h4 {

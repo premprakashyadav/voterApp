@@ -10,17 +10,17 @@ import { VotersService } from '../services/voters.service';
 })
 export class SearchComponent implements OnInit {
   searchFields = [
-    { value: 'assembly_no', label: 'Assembly No' },
-    { value: 'part_no', label: 'Part No' },
-    { value: 'boothid', label: 'Booth ID' },
-    { value: 'e_last_name', label: 'Last Name' },
+    // { value: 'assembly_no', label: 'Assembly No' },
+    // { value: 'part_no', label: 'Part No' },
+    // { value: 'boothid', label: 'Booth ID' },
     { value: 'e_first_name', label: 'First Name' },
-    { value: 'e_middle_name', label: 'Middle Name' },
+    { value: 'e_last_name', label: 'Last Name' },
+    // { value: 'e_middle_name', label: 'Middle Name' },
     { value: 'vcardid', label: 'Voter Card ID' },
-    { value: 'e_assemblyname', label: 'Assembly Name' }
+    // { value: 'e_assemblyname', label: 'Assembly Name' }
   ];
 
-  selectedField: string = '';
+  selectedField: string = this.searchFields[0].value;
   searchValue: string = '';
   searchResults: Voter[] = [];
   mobileNumbers: { [key: string]: string } = {};
@@ -53,7 +53,6 @@ export class SearchComponent implements OnInit {
   }
 
   onSearch(): void {
-    debugger;
     if (this.selectedField && this.searchValue) {
       this.searchResults = this.voterService.searchVoters(this.selectedField, this.searchValue);
     } else {

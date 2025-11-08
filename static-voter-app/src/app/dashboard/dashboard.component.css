@@ -13,6 +13,11 @@
   gap: 15px;
 }
 
+.dashboard-header h2 {
+  color: #fff;
+  font-weight: bold;
+}
+
 .favorites-controls {
   display: flex;
   gap: 15px;
@@ -148,4 +153,77 @@
   background-color: transparent;
   border: 1px solid #dc3545;
   color: #dc3545;
+}
+
+/* Remove Controls */
+.remove-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Voter Selection List */
+.voter-selection-list {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  margin: 10px 0;
+}
+
+.voter-selection-item {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.voter-selection-item:last-child {
+  border-bottom: none;
+}
+
+.voter-selection-item label {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  cursor: pointer;
+}
+
+.voter-selection-item input {
+  margin-right: 10px;
+}
+
+/* Selection Actions */
+.selection-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.selection-count {
+  margin-left: auto;
+  font-weight: bold;
+  color: #666;
+}
+
+/* Favorite Actions */
+.favorite-actions {
+  display: flex;
+  gap: 5px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .dashboard-controls {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .favorites-controls, .remove-controls {
+    flex-wrap: wrap;
+  }
+  
+  .favorite-actions {
+    flex-wrap: wrap;
+  }
 }

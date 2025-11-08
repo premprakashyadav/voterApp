@@ -4,29 +4,68 @@
     
     <div class="favorites-controls">
       <div class="favorite-dropdown">
-        <label>Favorites:</label>
-        <select [(ngModel)]="selectedFavorite" (change)="onFavoriteChange()" class="form-control">
-          <option value="all">All Voters</option>
-          <option *ngFor="let fav of favorites" [value]="fav.id">{{fav.name}} ({{fav.voters.length}})</option>
-        </select>
+        <label>Favourites:</label>
+          <select [(ngModel)]="selectedFavorite" (change)="onFavoriteChange()" class="form-control">
+            <option value="all">All Voters</option>
+            <option *ngFor="let fav of favorites" [value]="fav.id">
+              {{fav.name}} ({{fav.voters.length}})
+            </option>
+          </select>
       </div>
 
-      <button 
-        class="btn btn-primary" 
-        (click)="openCreateFavoriteModal()" 
-        [disabled]="selectedRows.length === 0">
-        Create Favorite ({{selectedRows.length}})
-      </button>
+        <button 
+          class="btn btn-primary" 
+          (click)="openCreateFavoriteModal()" 
+          [disabled]="selectedRows.length === 0">
+          Create Favourite ({{selectedRows.length}})
+        </button>
+
+        <!-- Remove buttons - only show when a favorite is selected -->
+        <div class="remove-controls" *ngIf="selectedFavorite && selectedFavorite !== 'all'">
+          <button 
+            class="btn btn-warning" 
+            (click)="removeSelectedVoters()" 
+            [disabled]="selectedRows.length === 0"
+            title="Remove selected voters from favorite">
+            Remove Selected ({{selectedRows.length}})
+          </button>
+          
+          <button 
+            class="btn btn-danger" 
+            (click)="clearFavorite()"
+            [disabled]="!getFavoriteById(selectedFavorite)?.voters?.length"
+            title="Clear all voters from this favorite">
+            Clear Favourite
+          </button>
+             <!-- Export controls -->
+      <!-- <div class="export-controls">
+        <button class="btn btn-success" (click)="exportAssemblyData()">
+          <i class="fas fa-download"></i> Export
+        </button>
+      </div> -->
+        </div>
+      </div>
+
     </div>
   </div>
 
+ <!-- Favorites List with Remove Options -->
   <div class="favorites-list" *ngIf="favorites.length > 0">
-    <h4>Favorite Lists:</h4>
+    <h4>Favourite Lists:</h4>
     <div class="favorite-items">
       <div *ngFor="let fav of favorites" class="favorite-item">
         <div *ngIf="!isEditingFavorite[fav.id]" class="favorite-display">
-          <span class="favorite-name">{{fav.name}} ({{fav.voters.length}} voters)</span>
+          <span class="favorite-name">
+            {{fav.name}} ({{fav.voters.length}} voters)
+            <small class="text-muted">- Created: {{fav.created | date:'medium'}}</small>
+          </span>
           <div class="favorite-actions">
+            <button class="btn btn-sm btn-outline-info" (click)="selectFavorite(fav.id)">
+              View
+            </button>
+            <button class="btn btn-sm btn-outline-warning" (click)="openRemoveModal(fav.id)">
+              Remove Voters
+            </button>
             <button class="btn btn-sm btn-outline-primary" (click)="startEditFavorite(fav)">
               Edit
             </button>
@@ -71,17 +110,65 @@
     </ag-grid-angular>
   </div>
 
+  <!-- Remove Voters Modal -->
+  <div *ngIf="showRemoveModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Remove Voters from Favourite</h3>
+        <button class="close-btn" (click)="showRemoveModal = false">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>Select voters to remove from 
+          <strong>{{getFavoriteById(selectedFavoriteForRemove)?.name}}</strong>:
+        </p>
+        
+        <div class="voter-selection-list">
+          <div *ngFor="let voter of getFavoriteById(selectedFavoriteForRemove)?.voters || []" 
+               class="voter-selection-item">
+            <label>
+              <input type="checkbox" 
+                     [checked]="isVoterSelectedForRemove(voter.id)"
+                     (change)="toggleVoterForRemove(voter.id)">
+              {{voter.e_first_name}} {{voter.e_last_name}} - {{voter.vcardid}}
+            </label>
+          </div>
+        </div>
+
+        <div class="selection-actions">
+          <button class="btn btn-sm btn-outline-secondary" (click)="selectAllVotersForRemove()">
+            Select All
+          </button>
+          <button class="btn btn-sm btn-outline-secondary" (click)="deselectAllVotersForRemove()">
+            Deselect All
+          </button>
+          <span class="selection-count">
+            {{votersToRemove.length}} voters selected
+          </span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="showRemoveModal = false">Cancel</button>
+        <button class="btn btn-danger" 
+                (click)="removeVotersFromSpecificFavorite(votersToRemove)"
+                [disabled]="votersToRemove.length === 0">
+          Remove Selected ({{votersToRemove.length}})
+        </button>
+      </div>
+    </div>
+  </div>
+
+
   <!-- Create Favorite Modal -->
   <div *ngIf="showCreateFavoriteModal" class="modal-overlay">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>Create New Favorite</h3>
+        <h3>Create New Favourite</h3>
         <button class="close-btn" (click)="showCreateFavoriteModal = false">&times;</button>
       </div>
       <div class="modal-body">
         <p>Selected {{selectedRows.length}} voters</p>
         <div class="form-group">
-          <label>Favorite Name:</label>
+          <label>Favourite Name:</label>
           <input 
             type="text" 
             [(ngModel)]="newFavoriteName" 
@@ -94,9 +181,8 @@
       <div class="modal-footer">
         <button class="btn btn-secondary" (click)="showCreateFavoriteModal = false">Cancel</button>
         <button class="btn btn-primary" (click)="createFavorite()" [disabled]="!newFavoriteName.trim()">
-          Create Favorite
+          Create Favourite
         </button>
       </div>
     </div>
   </div>
-</div>

@@ -146,7 +146,8 @@ export class VoterService {
     const newFavorite: FavoriteList = {
       id: Date.now().toString(),
       name,
-      voters: [...voters]
+      voters: [...voters],
+      created: new Date()
     };
     this.favorites.push(newFavorite);
     this.saveFavoritesToStorage();
@@ -158,6 +159,44 @@ export class VoterService {
       favorite.name = name;
       this.saveFavoritesToStorage();
     }
+  }
+
+    // Remove voter from favorite
+  removeVoterFromFavorite(favoriteId: string, voterId: string): void {
+    const favorite = this.favorites.find(f => f.id === favoriteId);
+    if (favorite) {
+      favorite.voters = favorite.voters.filter(v => v.id !== voterId);
+      this.saveFavoritesToStorage();
+    }
+  }
+
+    // Remove multiple voters from favorite
+  removeVotersFromFavorite(favoriteId: string, voterIds: string[]): void {
+    const favorite = this.favorites.find(f => f.id === favoriteId);
+    if (favorite) {
+      favorite.voters = favorite.voters.filter(v => !voterIds.includes(v.id));
+      this.saveFavoritesToStorage();
+    }
+  }
+
+   // Clear all voters from favorite (keep the list)
+  clearFavorite(favoriteId: string): void {
+    const favorite = this.favorites.find(f => f.id === favoriteId);
+    if (favorite) {
+      favorite.voters = [];
+      this.saveFavoritesToStorage();
+    }
+  }
+
+   // Check if voter is in favorite
+  isVoterInFavorite(favoriteId: string, voterId: string): boolean {
+    const favorite = this.favorites.find(f => f.id === favoriteId);
+    return favorite ? favorite.voters.some(v => v.id === voterId) : false;
+  }
+
+    // Get favorite by ID
+  getFavoriteById(favoriteId: string): FavoriteList | undefined {
+    return this.favorites.find(f => f.id === favoriteId);
   }
 
   deleteFavorite(id: string): void {

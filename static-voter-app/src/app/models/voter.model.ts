@@ -37,4 +37,5 @@ export interface FavoriteList {
   id: string;
   name: string;
   voters: Voter[];
+  created: Date;
 }

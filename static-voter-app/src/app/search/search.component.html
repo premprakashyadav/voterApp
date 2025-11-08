@@ -1,28 +1,36 @@
 <div class="search-container">
   <div class="search-form">
     <div class="form-group">
-      <label for="searchField">Search By:</label>
-      <select id="searchField" [(ngModel)]="selectedField" class="form-control">
+      <label for="searchField">Search By :</label>
+
+<div class="form-check form-check-inline" *ngFor="let field of searchFields">
+  <input class="form-check-input" name="searchFieldRadio" type="radio" id="{{ field.value }}" [value]="field.value"
+        [(ngModel)]="selectedField">
+  <label class="form-check-label" for="{{ field.value }}">{{field.label}}</label>
+</div>
+
+      <!-- <select id="searchField" [(ngModel)]="selectedField" class="form-control">
         <option value="">Select Field</option>
         <option *ngFor="let field of searchFields" [value]="field.value">
           {{field.label}}
         </option>
-      </select>
+      </select> -->
     </div>
 
     <div class="form-group" *ngIf="selectedField">
-      <label for="searchValue">Search Value:</label>
+      <label for="searchValue">Search Value :</label>
       <input 
         id="searchValue" 
         type="text" 
         [(ngModel)]="searchValue" 
         class="form-control" 
         placeholder="Enter search value...">
-    </div>
-
-    <button class="btn btn-primary" (click)="onSearch()" [disabled]="!selectedField || !searchValue">
+            <button class="btn btn-success" (click)="onSearch()" [disabled]="!selectedField || !searchValue">
       Search
     </button>
+    </div>
+
+
     <!-- <button class="btn btn-primary" (click)="exportData()" [disabled]="!selectedField || !searchValue">
       Export
     </button> -->
@@ -67,7 +75,7 @@
     </div>
   </div>
 
-  <div *ngIf="searchResults.length === 0 && selectedField && searchValue" class="no-results">
+  <!-- <div *ngIf="searchResults.length === 0 && selectedField && searchValue" class="no-results">
     No results found for your search criteria.
-  </div>
+  </div> -->
 </div>
