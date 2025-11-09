@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { ColDef, GridApi, GridReadyEvent, RowSelectedEvent, ModuleRegistry, AllCommunityModule } from 'ag-grid-community';
 import { Voter, FavoriteList } from '../models/voter.model';
 import { themeQuartz } from 'ag-grid-community';
-import { VotersService } from '../services/voters.service';
 import { VoterService } from '../services/voter.service';
 
 // Register AG Grid modules

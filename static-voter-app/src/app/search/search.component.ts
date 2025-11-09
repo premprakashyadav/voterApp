@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { VoterService } from '../services/voter.service';
 import { Voter } from '../models/voter.model';
-import { VotersService } from '../services/voters.service';
 
 @Component({
   selector: 'app-search',
@@ -9,6 +8,7 @@ import { VotersService } from '../services/voters.service';
   styleUrls: ['./search.component.css']
 })
 export class SearchComponent implements OnInit {
+  isSearched = false;
   searchFields = [
     // { value: 'assembly_no', label: 'Assembly No' },
     // { value: 'part_no', label: 'Part No' },
@@ -26,20 +26,10 @@ export class SearchComponent implements OnInit {
   mobileNumbers: { [key: string]: string } = {};
   isLoading: boolean = false;
 
-  constructor(private voterService: VoterService, private votersService: VotersService) {}
+  constructor(private voterService: VoterService) {}
 
   ngOnInit(): void {
     this.isLoading = true;
-    //     this.votersService.loadVotersData().subscribe({
-    //   next: (data: any) => {
-    //     this.isLoading = false;
-    //     this.searchResults = data; // Show all data initially
-    //   },
-    //   error: (error) => {
-    //     this.isLoading = false;
-    //     console.error('Error loading data:', error);
-    //   }
-    // });
     this.voterService.loadVotersData().subscribe({
       next: (data) => {
         this.isLoading = false;
@@ -55,7 +45,14 @@ export class SearchComponent implements OnInit {
   onSearch(): void {
     if (this.selectedField && this.searchValue) {
       this.searchResults = this.voterService.searchVoters(this.selectedField, this.searchValue);
+      if(this.searchResults.length === 0) {
+        this.isSearched = true;
+      } else {
+        this.isSearched = false;
+      }
     } else {
+      
+    this.isSearched = true;
       this.searchResults = [];
     }
   }
@@ -97,15 +94,6 @@ ${imageUrl}`;
     if (this.selectedField && this.searchValue) {
       filter = `${this.selectedField} ~ "${this.searchValue}"`;
     }
-    
-    this.votersService.exportFilteredData(filter).subscribe({
-      next: (data) => {
-        console.log('Exported data:', data.length);
-      },
-      error: (error) => {
-        console.error('Export error:', error);
-      }
-    });
   }
 
   isWhatsAppEnabled(voterId: string): boolean {

@@ -4,17 +4,11 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "start:prod": "concurrently \"npm run json\" \"ng serve --proxy-config proxy.conf.json\"",
     "build:prod": "ng build --configuration production",
-    "serve:prod": "npm run build:prod && concurrently \"npm run json-server\" \"npx http-server dist/voter-app -p 8080\"",
     "watch": "ng build --watch --configuration development",
-    "json": "json-server --watch public/voters.json --port 3000",
-    "build-and-serve": "ng build && concurrently \"npm run json\" \"http-server dist/voter-app -p 4200\"",
     "test": "ng test",
-    "deploy": "ng build --base-href https://yourusername.github.io/voter-app/ && npx angular-cli-ghpages --dir=dist/voter-app",
     "predeploy": "npm run build:prod",
-    "render-build": "npm run build:prod",
-    "render-start": "npx http-server dist/voter-app/browser -p $PORT -c-1"
+    "render-build": "npm run build:prod"
   },
   "private": true,
   "dependencies": {
@@ -29,7 +23,6 @@
     "ag-grid-angular": "^34.2.0",
     "ag-grid-community": "^34.2.0",
     "bootstrap": "^5.3.8",
-    "pocketbase": "^0.26.3",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.10"
@@ -39,8 +32,6 @@
     "@angular/cli": "^18.2.11",
     "@angular/compiler-cli": "^18.2.0",
     "@types/jasmine": "~5.1.0",
-    "concurrently": "^9.2.1",
-    "http-server": "^14.1.1",
     "jasmine-core": "~5.2.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",

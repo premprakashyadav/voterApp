@@ -75,7 +75,7 @@
     </div>
   </div>
 
-  <!-- <div *ngIf="searchResults.length === 0 && selectedField && searchValue" class="no-results">
-    No results found for your search criteria.
-  </div> -->
+  <div *ngIf="searchResults.length === 0 && isSearched && selectedField && searchValue" class="alert alert-danger no-results" role="alert">
+    Voter details not found.
+  </div>
 </div>
