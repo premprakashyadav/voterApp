@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
-import { Voter, FavoriteList } from '../models/voter.model';
+import { Voter, FavoriteList, voterList } from '../models/voter.model';
 
 @Injectable({
   providedIn: 'root'
@@ -22,19 +22,21 @@ export class VoterService {
 
   // Load initial data from JSON Server API
   loadVotersData(): Observable<Voter[]> {
-    return this.http.get<Voter[]>(this.apiUrl).pipe(
-      map((data: any) => {
-        this.voters = data?.voters;
-        console.log('Successfully loaded voters data from API:', data.length);
-        return data?.voters;
-      }),
-      catchError(error => {
-        console.error('Error loading data from API, using fallback data:', error);
-        // Fallback to sample data if API fails
-       // this.voters = this.getSampleData();
-        return of(this.voters);
-      })
-    );
+    this.voters = voterList;
+    return of(voterList);
+    // return this.http.get<Voter[]>(this.apiUrl).pipe(
+    //   map((data: any) => {
+    //     this.voters = data?.voters;
+    //     console.log('Successfully loaded voters data from API:', data.length);
+    //     return data?.voters;
+    //   }),
+    //   catchError(error => {
+    //     console.error('Error loading data from API, using fallback data:', error);
+    //     // Fallback to sample data if API fails
+    //    // this.voters = this.getSampleData();
+    //     return of(this.voters);
+    //   })
+    // );
   }
 
   // Search voters based on criteria
