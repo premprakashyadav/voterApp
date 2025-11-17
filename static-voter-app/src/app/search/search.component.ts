@@ -183,31 +183,44 @@ ${imageUrl}`;
   }
 
   // Native contact picker for supported browsers
-  private async openNativeContactPicker(voterId: string): Promise<void> {
-    try {
-      const contacts = await (navigator as any).contacts.select(
-        ['name', 'tel'],
-        { multiple: false }
-      );
+private async openNativeContactPicker(voterId: string): Promise<void> {
+  try {
+    const contacts = await (navigator as any).contacts.select(
+      ['name', 'tel'],
+      { multiple: false }
+    );
 
-      if (contacts && contacts.length > 0) {
-        const contact = contacts[0];
-        const phoneNumber = contact;
-
-        if (phoneNumber) {
-          this.onMobileNumberChange(voterId, phoneNumber);
-          //this.showToast(`Selected: ${contact.name || 'Contact'}`, 'success');
-          alert(`Selected: ${contact.name || 'Contact'}`);
-        } else {
-          // this.showToast('No phone number found in selected contact', 'warning');
-          alert('No phone number found in selected contact');
+    if (contacts && contacts.length > 0) {
+      const contact = contacts[0];
+      
+      // Extract phone number from contact object
+      let phoneNumber: any = '';
+      
+      if (contact.tel && contact.tel.length > 0) {
+        // Get the first phone number
+        phoneNumber = contact.tel[0];
+        
+        // If it's an object with properties, try to get the value
+        if (typeof phoneNumber === 'object') {
+          phoneNumber = phoneNumber?.number || phoneNumber?.value || phoneNumber?.toString();
         }
       }
-    } catch (error: any) {
-      console.error('Contact picker error:', error);
-      this.showContactPickerFallback(voterId);
+
+      if (phoneNumber) {
+        // Clean the phone number (remove non-digit characters)
+        const cleanedPhoneNumber = phoneNumber.replace(/\D/g, '');
+        
+        this.onMobileNumberChange(voterId, cleanedPhoneNumber);
+        alert(`Selected: ${contact.name || 'Contact'} - ${cleanedPhoneNumber}`);
+      } else {
+        alert('No phone number found in selected contact');
+      }
     }
+  } catch (error: any) {
+    console.error('Contact picker error:', error);
+    this.showContactPickerFallback(voterId);
   }
+}
 
   // Special instructions for iOS users
   private showIOSContactInstructions(voterId: string): void {
