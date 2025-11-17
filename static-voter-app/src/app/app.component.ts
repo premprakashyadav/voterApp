@@ -1,34 +1,96 @@
-import { Component, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { MetaService } from './services/meta.service';
+import { Component, OnInit, HostListener } from '@angular/core';
+import { Router, NavigationEnd } from '@angular/router';
+import { AuthService, User } from './services/auth.service';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-    currentView: 'search' | 'dashboard' = 'search';
-    constructor(private metaService: MetaService) {}
+  currentView: string = '';
+  isAuthenticated: boolean = false;
+  currentUser: User | null = null;
+  navbarOpen: boolean = false;
+  dropdownOpen: boolean = false;
 
-  ngOnInit() {
-    this.setDefaultMetaTags();
-  }
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
-    setDefaultMetaTags() {
-    this.metaService.setMetaTags({
-      title: 'Voter Search',
-      description: 'Search or find your voter details and share on whatsapp',
-      image: 'https://voterapp-tctn.onrender.com/pankaj-deshmukh.jpg',
-      url: 'https://voterapp-tctn.onrender.com',
-      keywords: 'voter, nalasopara, virar'
+  ngOnInit(): void {
+    // Subscribe to authentication state
+    this.authService.currentUser.subscribe(user => {
+      this.isAuthenticated = this.authService.hasDashboardAccess();
+      this.currentUser = user;
     });
-  }
-  showSearch(): void {
-    this.currentView = 'search';
+
+    // Subscribe to router events to update currentView
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        this.updateCurrentView(event.url);
+        this.closeAllMenus(); // Close menus on navigation
+      });
+
+    // Initialize currentView based on current URL
+    this.updateCurrentView(this.router.url);
   }
 
-  showDashboard(): void {
-    this.currentView = 'dashboard';
+  private updateCurrentView(url: string): void {
+    if (url.includes('/dashboard')) {
+      this.currentView = 'dashboard';
+    } else if (url.includes('/login')) {
+      this.currentView = 'login';
+    } else {
+      this.currentView = 'search';
+    }
+  }
+
+  // Prevent page reload on link clicks
+  preventReload(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  // Toggle navbar for mobile
+  toggleNavbar(): void {
+    this.navbarOpen = !this.navbarOpen;
+  }
+
+  // Toggle dropdown
+  toggleDropdown(): void {
+    this.dropdownOpen = !this.dropdownOpen;
+  }
+
+  // Close all menus
+  closeAllMenus(): void {
+    this.navbarOpen = false;
+    this.dropdownOpen = false;
+  }
+
+  logout(): void {
+    this.closeAllMenus();
+    this.authService.logout();
+    this.router.navigate(['/search']);
+  }
+
+  // Close dropdown when clicking outside
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.dropdown')) {
+      this.dropdownOpen = false;
+    }
+  }
+
+  @HostListener('window:resize')
+  onResize(): void {
+    // Close navbar on resize (for mobile)
+    if (window.innerWidth > 992) {
+      this.navbarOpen = false;
+    }
   }
 }

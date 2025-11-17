@@ -1,24 +1,84 @@
 <div class="app-container">
-  <nav class="navbar">
-    <div class="nav-brand"><img src="logo.jpg" height="50" alt="voter search"/> </div>
-    <div class="nav-links">
-      <button 
-        class="nav-link" 
-        [class.active]="currentView === 'search'"
-        (click)="showSearch()">
-        Search
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" [routerLink]="['/search']" (click)="preventReload($event)">
+        <img src="logo.jpg" height="50" alt="voter search"/>
+      </a>
+      
+      <button class="navbar-toggler" type="button" (click)="toggleNavbar()" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
       </button>
-      <button 
-        class="nav-link" 
-        [class.active]="currentView === 'dashboard'"
-        (click)="showDashboard()">
-        Dashboard
-      </button>
+      
+      <div class="collapse navbar-collapse" id="navbarNav" [class.show]="navbarOpen">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a 
+              class="nav-link" 
+              [routerLink]="['/search']"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: true }"
+              (click)="preventReload($event)">
+              <i class="fas fa-search me-1"></i> Search
+            </a>
+          </li>
+          <li class="nav-item">
+            <a 
+              class="nav-link" 
+              [routerLink]="['/dashboard']"
+              routerLinkActive="active"
+              (click)="preventReload($event)"
+              *ngIf="isAuthenticated">
+              <i class="fas fa-chart-bar me-1"></i> Dashboard
+            </a>
+            <a 
+              class="nav-link" 
+              [routerLink]="['/login']" 
+              [queryParams]="{returnUrl: 'dashboard'}"
+              (click)="preventReload($event)"
+              *ngIf="!isAuthenticated">
+              <i class="fas fa-chart-bar me-1"></i> Dashboard
+            </a>
+          </li>
+        </ul>
+        
+        <!-- User Info & Logout - SIMPLE VERSION -->
+        <div class="navbar-nav" *ngIf="isAuthenticated && currentUser">
+          <div class="nav-item">
+            <div class="dropdown">
+              <button 
+                class="btn btn-link nav-link dropdown-toggle text-white text-decoration-none" 
+                type="button" 
+                (click)="toggleDropdown()"
+                aria-expanded="false">
+                <i class="fas fa-user me-1"></i>
+                {{ currentUser.username }} ({{ currentUser.role }})
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end" [class.show]="dropdownOpen">
+                <li>
+                  <button class="dropdown-item" (click)="logout()">
+                    <i class="fas fa-sign-out-alt me-2"></i> Logout
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Login Button -->
+        <div class="navbar-nav" *ngIf="!isAuthenticated && currentView !== 'login'">
+          <li class="nav-item">
+            <a class="nav-link" [routerLink]="['/login']" [queryParams]="{returnUrl: 'dashboard'}" (click)="preventReload($event)">
+              <i class="fas fa-sign-in-alt me-1"></i> Login
+            </a>
+          </li>
+        </div>
+      </div>
     </div>
   </nav>
 
-  <main class="main-content">
-    <app-search *ngIf="currentView === 'search'"></app-search>
-    <app-dashboard *ngIf="currentView === 'dashboard'"></app-dashboard>
+  <!-- Main Content - Router Outlet Only -->
+  <main class="container-fluid mt-3">
+    <router-outlet></router-outlet>
   </main>
 </div>

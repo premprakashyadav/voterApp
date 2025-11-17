@@ -1,0 +1,73 @@
+.login-container {
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.min-vh-100 {
+  min-height: 100vh;
+}
+
+.card {
+  border: none;
+  border-radius: 15px;
+}
+
+.card-header {
+  border-radius: 15px 15px 0 0 !important;
+  padding: 2rem 1rem;
+}
+
+.card-header h4 {
+  font-weight: 300;
+}
+
+.form-control {
+  border-radius: 8px;
+  padding: 12px 15px;
+  border: 2px solid #e9ecef;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.btn {
+  border-radius: 8px;
+  padding: 12px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Demo buttons */
+.btn-outline-success:hover {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-outline-info:hover {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.btn-outline-warning:hover {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .login-container {
+    padding: 10px;
+  }
+  
+  .card-header {
+    padding: 1.5rem 1rem;
+  }
+}

@@ -1,12 +1,20 @@
 <div class="search-container">
   <div class="search-form">
     <div class="form-group">
-      <label for="searchField">Search By :</label>
+      <label class="searchBy">Search By:</label>
 
-<div class="form-check form-check-inline" *ngFor="let field of searchFields">
-  <input class="form-check-input" name="searchFieldRadio" type="radio" id="{{ field.value }}" [value]="field.value"
-        [(ngModel)]="selectedField">
-  <label class="form-check-label" for="{{ field.value }}">{{field.label}}</label>
+<div class="form-inline form-group">
+  <input class="form-control" type="text" id="firstname" placeholder="First Name"
+        [(ngModel)]="firstname">
+        <strong class="orStyle">OR</strong>
+         <input class="form-control" type="text" id="lastname" placeholder="Last Name"
+        [(ngModel)]="lastname">
+        <strong class="orStyle">OR</strong>
+         <input class="form-control" type="text" id="voterId" placeholder="Voter Id"
+        [(ngModel)]="voterId">
+        <button class="btn btn-success" (click)="onSearch()">
+      Search
+    </button>
 </div>
 
       <!-- <select id="searchField" [(ngModel)]="selectedField" class="form-control">
@@ -17,7 +25,7 @@
       </select> -->
     </div>
 
-    <div class="form-group" *ngIf="selectedField">
+    <!-- <div class="form-group" *ngIf="selectedField">
       <label for="searchValue">Search Value :</label>
       <input 
         id="searchValue" 
@@ -28,7 +36,7 @@
             <button class="btn btn-success" (click)="onSearch()" [disabled]="!selectedField || !searchValue">
       Search
     </button>
-    </div>
+    </div> -->
 
 
     <!-- <button class="btn btn-primary" (click)="exportData()" [disabled]="!selectedField || !searchValue">
@@ -62,20 +70,59 @@
                 [value]="mobileNumbers[voter.id] || ''"
                 (input)="onMobileNumberChange(voter.id, $any($event.target).value)"
                 class="form-control">
-            </div>
-            <button 
+                 <button 
               class="btn btn-success whatsapp-btn"
               (click)="shareOnWhatsApp(voter)"
               [disabled]="!isWhatsAppEnabled(voter.id)">
-              <i class="fab fa-whatsapp"></i> Share via WhatsApp
+              <i class="fab fa-whatsapp"></i>
             </button>
+            </div>
+
+           
+            <!-- Contact Picker Button - Show with appropriate label -->
+             <div class="d-flex">
+                              <button 
+                  class="btn mr-2"
+                  [class.btn-primary]="isContactPickerSupported"
+                  [class.btn-secondary]="!isContactPickerSupported"
+                  type="button"
+                  (click)="openContactPicker(voter.id)"
+                  [title]="isContactPickerSupported ? 'Pick from contacts' : 'Add phone number'">
+                  <i class="fas" 
+                     [class.fa-address-book]="isContactPickerSupported"
+                     [class.fa-mobile-alt]="!isContactPickerSupported"></i>
+                     {{isContactPickerSupported ? 'Pick from contacts' : 'Add phone number'}}
+                </button>
+
+                 <button 
+                class="btn btn-success  ms-2"
+                (click)="shareOnWhatsAppWithoutNumber(voter)"
+                title="Share without phone number (opens WhatsApp with pre-filled message)">
+                <i class="fab fa-whatsapp me-1"></i> Share Message Only
+              </button>
+             </div>
+
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <div *ngIf="searchResults.length === 0 && isSearched && selectedField && searchValue" class="alert alert-danger no-results" role="alert">
+
+  <div *ngIf="searchResults.length === 0 && isSearched" class="alert alert-danger no-results" role="alert">
     Voter details not found.
+  </div>
+
+    <!-- Browser Warning for iOS Users -->
+  <div *ngIf="isChromeIOS || isSafariIOS" class="alert alert-info mt-3">
+    <div class="d-flex align-items-center">
+      <i class="fas fa-mobile-alt me-2 fs-5"></i>
+      <div>
+        <strong>Using {{browserInfo}}</strong>
+        <small class="d-block text-muted">
+          For best experience, copy phone numbers from your Contacts app and paste them above.
+        </small>
+      </div>
+    </div>
   </div>
 </div>
