@@ -102,9 +102,14 @@ export class SearchComponent implements OnInit {
 उमेदवार: पंकज डी. देशमुख
 भारतीय जनता पार्टी
 ${imageUrl}`;
-
+let whatsappUrl;
     const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/+91${cleanNumber}?text=${encodedMessage}`;
+    if(cleanNumber.length > 10 && cleanNumber.startsWith('91')) {
+whatsappUrl = `https://wa.me/+${cleanNumber}?text=${encodedMessage}`;
+    } else if(cleanNumber.length === 10) {
+whatsappUrl = `https://wa.me/+91${cleanNumber}?text=${encodedMessage}`;
+    };
+    
 
     window.open(whatsappUrl, '_blank');
   }
