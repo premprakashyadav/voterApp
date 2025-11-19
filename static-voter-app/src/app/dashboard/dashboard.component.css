@@ -8,7 +8,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 0;
   flex-wrap: wrap;
   gap: 15px;
 }
@@ -38,7 +38,7 @@
 
 .favorites-list {
   margin-bottom: 20px;
-  padding: 15px;
+  padding: 0px;
   background-color: #f8f9fa;
   border-radius: 4px;
 }

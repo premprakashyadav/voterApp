@@ -51,9 +51,14 @@
 
  <!-- Favorites List with Remove Options -->
   <div class="favorites-list" *ngIf="favorites.length > 0">
-    <h4>Favourite Lists:</h4>
-    <div class="favorite-items">
-      <div *ngFor="let fav of favorites" class="favorite-item">
+      <accordion>
+  <accordion-group class="favorite-item">
+    <button
+      class="btn btn-block justify-content-between d-flex w-100  shadow-none"
+      accordion-heading type="button"><h4 class="pull-left float-left mb-0">Favourite Lists</h4>
+      <span class="badge badge-secondary bg-success float-right pull-right">{{favorites.length}}</span>
+    </button>
+        <div *ngFor="let fav of favorites" class="favorite-item">
         <div *ngIf="!isEditingFavorite[fav.id]" class="favorite-display">
           <span class="favorite-name">
             {{fav.name}} ({{fav.voters.length}} voters)
@@ -88,8 +93,10 @@
           </button>
         </div>
       </div>
+  </accordion-group>
+</accordion>
+ 
     </div>
-  </div>
 
   <div class="ag-grid-container">
     <!-- Add themeClass binding -->

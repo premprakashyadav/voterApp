@@ -17,6 +17,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { LoginComponent } from './login/login.component';
 import { AuthGuard } from './guards/auth.guard';
 import { AuthService } from './services/auth.service';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { AccordionComponent, AccordionPanelComponent } from 'ngx-bootstrap/accordion';
 
 @NgModule({
   declarations: [
@@ -26,6 +28,9 @@ import { AuthService } from './services/auth.service';
     LoginComponent
   ],
   imports: [
+    BrowserAnimationsModule,
+    AccordionComponent,
+    AccordionPanelComponent,
     BrowserModule,
     FormsModule,
     ReactiveFormsModule,
