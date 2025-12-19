@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { VoterService } from '../services/voter.service';
 import { Voter } from '../models/voter.model';
+import PocketBase from 'pocketbase';
 
 @Component({
   selector: 'app-search',
@@ -35,6 +36,56 @@ export class SearchComponent implements OnInit {
   mobileNumbers: { [key: string]: string } = {};
   isLoading: boolean = false;
 
+  private pb = new PocketBase('https://corporatorelection.onrender.com');
+
+  private searchableFields = [
+    'constno',
+    'yadibhag',
+    'vno',
+    'age',
+    'hno',
+    'name',
+    'hname',
+    'name_english',
+    'surname',
+    'esurname',
+    'sex',
+    'cardno',
+    'relative',
+    'relative_english',
+    'relation',
+    'address',
+    'entrytype',
+    'familycode',
+    'familyqty',
+    'section_no',
+    'caste',
+    'deadalive',
+    'Dubar',
+    'mobileOld',
+    'email',
+    'shifted',
+    'blood',
+    'societyno',
+    'partyno',
+    'keypersonno',
+    'redgreen',
+    'leaderno',
+    'coleaderno',
+    'oppleaderno',
+    'voting',
+    'booth',
+    'dubarcode',
+    'adhar',
+    'ration',
+    'senior',
+    'lat',
+    'lon',
+    'gaddress',
+    'addressN',
+    'Mobile',
+  ];
+
   constructor(private voterService: VoterService) {}
 
   ngOnInit(): void {
@@ -42,11 +93,11 @@ export class SearchComponent implements OnInit {
     this.detectBrowserAndCapabilities();
     this.isLoading = true;
     this.voterService.loadVotersData().subscribe({
-      next: (data) => {
+      next: (data: any) => {
         this.isLoading = false;
         console.log('Loaded voters data:', data.length);
       },
-      error: (error) => {
+      error: (error: any) => {
         this.isLoading = false;
         console.error('Error loading data:', error);
       },
@@ -65,10 +116,80 @@ export class SearchComponent implements OnInit {
     }
   }
 
+  async searchFamiliesDirect(query: string): Promise<any> {
+    // This complex filter finds families where:
+    // 1. Any member matches the search query
+    // 2. familyqty > 1
+    // 3. Returns all members of matching families
+
+    const searchableFields = [
+      'name',
+      'surname',
+      'name_english',
+      'address',
+      'Mobile',
+      'cardno',
+    ];
+
+    // Build search condition for any field
+    const searchConditions = searchableFields
+      .map((field) => `${field} ~ "${query}"`)
+      .join(' || ');
+
+    // Find family codes where at least one member matches AND familyqty > 1
+    const familyFilter = `(${searchConditions}) && familyqty > 1`;
+
+    try {
+      // First, find matching records with familyqty > 1
+      const matchingRecords = await this.pb
+        .collection('corporatorElectionData')
+        .getFullList({
+          filter: familyFilter,
+          fields: 'familycode',
+        });
+
+      // Extract unique family codes
+      const familyCodes = [
+        ...new Set(matchingRecords.map((r) => r['familycode'])),
+      ];
+
+      if (familyCodes.length === 0) {
+        return [];
+      }
+
+      // Get ALL members of these families
+      const familyCodeFilter = familyCodes
+        .map((code) => `familycode = "${code}"`)
+        .join(' || ');
+
+      const allFamilyMembers = await this.pb
+        .collection('corporatorElectionData')
+        .getFullList({
+          filter: familyCodeFilter,
+          sort: 'familycode, name',
+        });
+
+      return allFamilyMembers;
+    } catch (error) {
+      console.error('Direct family search error:', error);
+      throw error;
+    }
+  }
+
   onSearch(): void {
     if (this.firstname) {
       this.selectedField = 'e_first_name';
-      this.searchBasedPara(this.firstname);
+      // this.searchBasedPara(this.firstname);
+      this.searchFamiliesDirect(this.firstname)
+        .then((results) => {
+          this.searchResults = results;
+          this.isSearched = results.length === 0;
+        })
+        .catch((error) => {
+          console.error('Search error:', error);
+          this.isSearched = true;
+          this.searchResults = [];
+        });
     } else if (this.lastname) {
       this.selectedField = 'e_last_name';
       this.searchBasedPara(this.lastname);
@@ -85,31 +206,48 @@ export class SearchComponent implements OnInit {
     this.mobileNumbers[voterId] = number;
   }
 
+  shareAllOnWhatsApp(voter: Voter): void {
+    let sameFamilyData = this.searchResults.filter(
+      (v) => v.familycode === voter.familycode
+    );
+    const mobileNumber = this.mobileNumbers[voter.id];
+    if (!mobileNumber) return;
+    sameFamilyData.forEach((familyVoter) => {
+      this.shareOnWhatsApp(familyVoter);
+    });
+  }
+
   shareOnWhatsApp(voter: Voter): void {
     const mobileNumber = this.mobileNumbers[voter.id];
     if (!mobileNumber) return;
-
     // Clean the mobile number (remove spaces, dashes, etc.)
     const cleanNumber = mobileNumber.replace(/\D/g, '');
-    const imageUrl = 'https://photos.app.goo.gl/dyZYH6Akt9bAv1Nh8';
+    const imageUrl = 'https://photos.app.goo.gl/UQAjr436EscrhTLo7';
     const message = `नमस्कार:
-मतदाता क्रमांक: ${voter.vcardid}
-यादिभाग क्रमांक: ${voter.part_no}
-मतदाता नाव: ${voter.e_first_name} ${voter.e_middle_name} ${voter.e_last_name}
-विधानसभा क्रमांक: ${voter.e_assemblyname}
-मतदान केंद्र: ${voter.boothid}  ${voter.e_address}
+यादी भाग क्र.: ${voter.yadibhag}
+वॉर्ड / कॉलेज /विभाग क्रमांक: ${voter.constno}
+अ. क्र: ${voter.vno}
+विधानसभा निर्वाचन क्षेत्र संख्या: ${voter.booth.split('/')[0]}
+अनुक्रमांक भागात: ${voter.booth.split('/')[2]}
+मतदाता नाव: ${voter.name}
+भाग क्रमांक: ${voter.booth.split('/')[1]}
+मतदान कार्ड: ${voter.cardno}
+मतदान केंद्र: ${voter.address}
+वय: ${voter.age}
+लिंग: ${voter.sex}
+पत्ता: ${voter.addressN}
+रिलेटीव चे नाव: ${voter.relative}
 निशाणी: कमळ
-उमेदवार: पंकज डी. देशमुख
+उमेदवार: पंकज दमयंती दत्तात्रेय देशमुख
 भारतीय जनता पार्टी
 ${imageUrl}`;
-let whatsappUrl;
+    let whatsappUrl;
     const encodedMessage = encodeURIComponent(message);
-    if(cleanNumber.length > 10 && cleanNumber.startsWith('91')) {
-whatsappUrl = `https://wa.me/+${cleanNumber}?text=${encodedMessage}`;
-    } else if(cleanNumber.length === 10) {
-whatsappUrl = `https://wa.me/+91${cleanNumber}?text=${encodedMessage}`;
-    };
-    
+    if (cleanNumber.length > 10 && cleanNumber.startsWith('91')) {
+      whatsappUrl = `https://wa.me/+${cleanNumber}?text=${encodedMessage}`;
+    } else if (cleanNumber.length === 10) {
+      whatsappUrl = `https://wa.me/+91${cleanNumber}?text=${encodedMessage}`;
+    }
 
     window.open(whatsappUrl, '_blank');
   }
@@ -188,44 +326,49 @@ whatsappUrl = `https://wa.me/+91${cleanNumber}?text=${encodedMessage}`;
   }
 
   // Native contact picker for supported browsers
-private async openNativeContactPicker(voterId: string): Promise<void> {
-  try {
-    const contacts = await (navigator as any).contacts.select(
-      ['name', 'tel'],
-      { multiple: false }
-    );
+  private async openNativeContactPicker(voterId: string): Promise<void> {
+    try {
+      const contacts = await (navigator as any).contacts.select(
+        ['name', 'tel'],
+        { multiple: false }
+      );
 
-    if (contacts && contacts.length > 0) {
-      const contact = contacts[0];
-      
-      // Extract phone number from contact object
-      let phoneNumber: any = '';
-      
-      if (contact.tel && contact.tel.length > 0) {
-        // Get the first phone number
-        phoneNumber = contact.tel[0];
-        
-        // If it's an object with properties, try to get the value
-        if (typeof phoneNumber === 'object') {
-          phoneNumber = phoneNumber?.number || phoneNumber?.value || phoneNumber?.toString();
+      if (contacts && contacts.length > 0) {
+        const contact = contacts[0];
+
+        // Extract phone number from contact object
+        let phoneNumber: any = '';
+
+        if (contact.tel && contact.tel.length > 0) {
+          // Get the first phone number
+          phoneNumber = contact.tel[0];
+
+          // If it's an object with properties, try to get the value
+          if (typeof phoneNumber === 'object') {
+            phoneNumber =
+              phoneNumber?.number ||
+              phoneNumber?.value ||
+              phoneNumber?.toString();
+          }
+        }
+
+        if (phoneNumber) {
+          // Clean the phone number (remove non-digit characters)
+          const cleanedPhoneNumber = phoneNumber.replace(/\D/g, '');
+
+          this.onMobileNumberChange(voterId, cleanedPhoneNumber);
+          alert(
+            `Selected: ${contact.name || 'Contact'} - ${cleanedPhoneNumber}`
+          );
+        } else {
+          alert('No phone number found in selected contact');
         }
       }
-
-      if (phoneNumber) {
-        // Clean the phone number (remove non-digit characters)
-        const cleanedPhoneNumber = phoneNumber.replace(/\D/g, '');
-        
-        this.onMobileNumberChange(voterId, cleanedPhoneNumber);
-        alert(`Selected: ${contact.name || 'Contact'} - ${cleanedPhoneNumber}`);
-      } else {
-        alert('No phone number found in selected contact');
-      }
+    } catch (error: any) {
+      console.error('Contact picker error:', error);
+      this.showContactPickerFallback(voterId);
     }
-  } catch (error: any) {
-    console.error('Contact picker error:', error);
-    this.showContactPickerFallback(voterId);
   }
-}
 
   // Special instructions for iOS users
   private showIOSContactInstructions(voterId: string): void {
@@ -306,15 +449,23 @@ Or simply type the number manually.
   }
 
   generateWhatsAppMessage(voter: Voter) {
-    const imageUrl = 'https://photos.app.goo.gl/dyZYH6Akt9bAv1Nh8';
+    const imageUrl = 'https://photos.app.goo.gl/UQAjr436EscrhTLo7';
     const message = `नमस्कार:
-मतदाता क्रमांक: ${voter.vcardid}
-यादिभाग क्रमांक: ${voter.part_no}
-मतदाता नाव: ${voter.e_first_name} ${voter.e_middle_name} ${voter.e_last_name}
-विधानसभा क्रमांक: ${voter.e_assemblyname}
-मतदान केंद्र: ${voter.boothid}  ${voter.e_address}
+यादी भाग क्र.: ${voter.yadibhag}
+वॉर्ड / कॉलेज /विभाग क्रमांक: ${voter.constno}
+अ. क्र: ${voter.vno}
+विधानसभा निर्वाचन क्षेत्र संख्या: ${voter.booth.split('/')[0]}
+अनुक्रमांक भागात: ${voter.booth.split('/')[2]}
+मतदाता नाव: ${voter.name}
+भाग क्रमांक: ${voter.booth.split('/')[1]}
+मतदान कार्ड: ${voter.cardno}
+मतदान केंद्र: ${voter.address}
+वय: ${voter.age}
+लिंग: ${voter.sex}
+पत्ता: ${voter.addressN}
+रिलेटीव चे नाव: ${voter.relative}
 निशाणी: कमळ
-उमेदवार: पंकज डी. देशमुख
+उमेदवार: पंकज दमयंती दत्तात्रेय देशमुख
 भारतीय जनता पार्टी
 ${imageUrl}`;
     const encodedMessage = encodeURIComponent(message);

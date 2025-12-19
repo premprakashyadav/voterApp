@@ -1,19 +1,22 @@
+<!-- <figure>
+  <img src="banner.jpeg" class="img-fluid" alt="Vasai Virar Municipal Corporation">
+</figure> -->
 <div class="search-container">
   <div class="search-form">
     <div class="form-group">
-      <label class="searchBy">Search By:</label>
+      <label class="searchBy">पहिले नाव किंवा मधले नाव किंवा आडनाव किंवा  मतदान कार्ड( किमान ३ अक्षरे टाइप करा )</label>
 
-<div class="form-inline form-group">
-  <input class="form-control" type="text" id="firstname" placeholder="First Name"
+<div class="form-group">
+  <input class="form-control" type="text" id="firstname" placeholder="मतदार शोधा (किमान ३ अक्षरे टाइप करा )"
         [(ngModel)]="firstname">
-        <strong class="orStyle">OR</strong>
+        <!-- <strong class="orStyle">OR</strong>
          <input class="form-control" type="text" id="lastname" placeholder="Last Name"
         [(ngModel)]="lastname">
         <strong class="orStyle">OR</strong>
          <input class="form-control" type="text" id="voterId" placeholder="Voter Id"
-        [(ngModel)]="voterId">
+        [(ngModel)]="voterId"> -->
         <button class="btn btn-success" (click)="onSearch()">
-      Search
+      सबमिट करा
     </button>
 </div>
 
@@ -49,17 +52,22 @@
     <div class="cards-container">
       <div *ngFor="let voter of searchResults" class="voter-card">
         <div class="card-header">
-          <h4>{{voter.e_first_name}} {{voter.e_middle_name}} {{voter.e_last_name}}</h4>
+          <h4>{{voter.name}}</h4>
         </div>
         <div class="card-body">
           <div class="voter-details">
-            <p><strong>Assembly No:</strong> {{voter.assembly_no}}</p>
-            <p><strong>Part No:</strong> {{voter.part_no}}</p>
-            <p><strong>Booth ID:</strong> {{voter.boothid}}</p>
-            <p><strong>Voter Card ID:</strong> {{voter.vcardid}}</p>
-            <p><strong>Assembly Name:</strong> {{voter.e_assemblyname}}</p>
-            <p><strong>Age:</strong> {{voter.age}}</p>
-            <p><strong>Sex:</strong> {{voter.sex}}</p>
+            <p><strong>यादी भाग क्र.:</strong> {{voter.yadibhag}}</p>
+            <p><strong>वॉर्ड / कॉलेज /विभाग क्रमांक:</strong> {{voter.constno}}</p>
+            <p><strong>अ. क्र:</strong> {{voter.vno}}</p>
+            <p><strong>विधानसभा निर्वाचन क्षेत्र संख्या:</strong> {{voter.booth.split('/')[0]}}</p>
+            <p><strong>अनुक्रमांक भागात:</strong> {{voter.booth.split('/')[2]}}</p>
+            <p><strong>भाग क्रमांक:</strong> {{voter.booth.split('/')[1]}}</p>
+            <p><strong>मतदान कार्ड:</strong> {{voter.cardno}}</p>
+            <p><strong>मतदान केंद्र:</strong> {{voter.address}}</p>
+            <p><strong>वय:</strong> {{voter.age}}</p>
+            <p><strong>लिंग:</strong> {{voter.sex}}</p>
+            <p><strong>पत्ता:</strong> {{voter.addressN}}</p>
+            <p><strong>रिलेटीव चे नाव:</strong> {{voter.relative}}</p>
           </div>
           
           <div class="whatsapp-section">
@@ -67,13 +75,12 @@
               <input 
                 type="tel" 
                 placeholder="Enter mobile number"
-                [value]="mobileNumbers[voter.id] || ''"
+                [value]="mobileNumbers[voter.id] || voter.Mobile"
                 (input)="onMobileNumberChange(voter.id, $any($event.target).value)"
                 class="form-control">
                  <button 
               class="btn btn-success whatsapp-btn"
-              (click)="shareOnWhatsApp(voter)"
-              [disabled]="!isWhatsAppEnabled(voter.id)">
+              (click)="shareAllOnWhatsApp(voter)">
               <i class="fab fa-whatsapp"></i>
             </button>
             </div>
