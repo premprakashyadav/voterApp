@@ -3,6 +3,7 @@ import { ColDef, GridApi, GridReadyEvent, RowSelectedEvent, ModuleRegistry, AllC
 import { Voter, FavoriteList } from '../models/voter.model';
 import { themeQuartz } from 'ag-grid-community';
 import { VoterService } from '../services/voter.service';
+import PocketBase from 'pocketbase';
 
 // Register AG Grid modules
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -42,7 +43,7 @@ export class DashboardComponent implements OnInit {
   newFavoriteName: string = '';
   isLoading: boolean = false;
   showCreateFavoriteModal: boolean = false;
-
+ private pb = new PocketBase('https://corporatorelection.onrender.com');
   constructor(private voterService: VoterService) {}
 
   ngOnInit(): void {
