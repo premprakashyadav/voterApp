@@ -2,8 +2,8 @@ name: Keep Render Backend Warm
 
 on:
   schedule:
-    - cron: '*/5 * * * *'   # every 5 minutes
-  workflow_dispatch:          # allows manual trigger
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
 
 jobs:
   ping:
@@ -43,7 +43,7 @@ jobs:
           fi
 
       - name: Upload ping log artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ping-log
           path: ping-logs/
