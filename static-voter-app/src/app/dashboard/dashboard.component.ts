@@ -1,13 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { ColDef, GridApi, GridReadyEvent, RowSelectedEvent, ModuleRegistry, AllCommunityModule } from 'ag-grid-community';
+import { ColDef, GridApi, GridReadyEvent, RowSelectedEvent, ModuleRegistry, AllCommunityModule, GridOptions } from 'ag-grid-community';
 import { Voter, FavoriteList } from '../models/voter.model';
 import { themeQuartz } from 'ag-grid-community';
 import { VoterService } from '../services/voter.service';
 import PocketBase from 'pocketbase';
 import { NgxSpinnerService } from 'ngx-spinner';
+import 'ag-grid-enterprise';
+import { AllEnterpriseModule } from 'ag-grid-enterprise';
 
 // Register AG Grid modules
-ModuleRegistry.registerModules([AllCommunityModule]);
+ModuleRegistry.registerModules([AllEnterpriseModule]);
 
 @Component({
   selector: 'app-dashboard',
@@ -34,13 +36,11 @@ export class DashboardComponent implements OnInit {
   columnDefs: ColDef[] = [];
 
   defaultColDef: ColDef = {
-    flex: 1,
-    minWidth: 200,
     resizable: true,
     filter: true,
+    floatingFilter: true,
     sortable: true,
   };
-
   newFavoriteName: string = '';
   isLoading: boolean = false;
   showCreateFavoriteModal: boolean = false;
@@ -89,7 +89,7 @@ getFavoriteById(favoriteId: string): FavoriteList | undefined {
   onGridReady(params: GridReadyEvent): void {
     this.gridApi = params.api;
     // Auto-size columns to fit content
-    params.api.sizeColumnsToFit();
+   // params.api.sizeColumnsToFit();
   }
 
   getColumnDefs(): ColDef[] {
@@ -101,37 +101,37 @@ getFavoriteById(favoriteId: string): FavoriteList | undefined {
       field: 'selected', 
       checkboxSelection: true, 
       headerCheckboxSelection: true,
-      width: 60,
+      width: 80,
       filter: false,
       sortable: false
     },
-    { headerName: 'यादी भाग क्र', field: 'yadibhag', filter: true, sortable: true, width: 60 },
-    { headerName: 'वॉर्ड / कॉलेज /विभाग क्रमांक', field: 'constno', filter: true, sortable: true, width: 60 },
-    { headerName: 'अ. क्र.', field: 'vno', filter: true, sortable: true },
-    { headerName: 'विधानसभा निर्वाचन क्षेत्र संख्या', field: 'booth', filter: true, sortable: true,width: 100,
+    { headerName: 'यादी क्र.', headerTooltip: 'यादी भाग क्र.', field: 'yadibhag', filter: 'agNumberColumnFilter', sortable: true, width: 180 },
+    { headerName: 'वॉर्ड क्र.', headerTooltip: 'वॉर्ड / कॉलेज /विभाग क्रमांक', field: 'constno', filter: 'agNumberColumnFilter', sortable: true, width: 180 },
+    { headerName: 'अ. क्र.', headerTooltip: 'अ. क्र.', field: 'vno', filter: 'agNumberColumnFilter', sortable: true, width: 180 },
+    { headerName: 'वि. क्र.', headerTooltip: 'विधानसभा निर्वाचन क्षेत्र संख्या', field: 'booth', filter: 'agTextColumnFilter', sortable: true,width: 200,
       valueGetter: (params: any) => {
         return params.data.booth.split('/')[0];
       }
      },
-    { headerName: 'अनुक्रमांक भागात', field: 'booth', filter: true, sortable: true,
-      width: 70,
+    { headerName: 'अ. क्र. भागात', headerTooltip: 'अनुक्रमांक भागात', field: 'booth', filter: 'agTextColumnFilter', sortable: true,
+      width: 250,
             valueGetter: (params: any) => {
         return params.data.booth.split('/')[2];
       }
      },
-    { headerName: 'भाग क्रमांक', field: 'booth', filter: true, sortable: true,
-      width: 60,
+    { headerName: 'भाग क्र.', headerTooltip: 'भाग क्रमांक', field: 'booth', filter: 'agTextColumnFilter', sortable: true,
+      width: 180,
             valueGetter: (params: any) => {
         return params.data.booth.split('/')[1];
       }
      },
-    { headerName: 'पूर्ण नाव', field: 'name', filter: true, sortable: true, width: 120 },
-    { headerName: 'मतदान कार्ड', field: 'cardno', filter: true, sortable: true, width: 70 },
-    { headerName: 'मोबाइल', field: 'Mobile', filter: true, sortable: true, width: 70 },
-    { headerName: 'मतदान केंद्र', field: 'address', filter: true, sortable: true, width: 200 },
-    { headerName: 'वय', field: 'age', filter: true, sortable: true },
-    { headerName: 'लिंग', field: 'sex', filter: true, sortable: true, width: 200 },
-    { headerName: 'पत्ता', field: 'addressN', filter: true, sortable: true },
+    { headerName: 'पूर्ण नाव', headerTooltip: 'पूर्ण नाव', field: 'name', filter: 'agTextColumnFilter', sortable: true, width: 250 },
+    { headerName: 'मतदान कार्ड', headerTooltip: 'मतदान कार्ड', field: 'cardno', filter: 'agTextColumnFilter', sortable: true, width: 250 },
+    { headerName: 'मोबाइल', headerTooltip: 'मोबाइल', field: 'Mobile', filter: 'agTextColumnFilter', sortable: true, width: 150 },
+    { headerName: 'मतदान केंद्र', headerTooltip: 'मतदान केंद्र', field: 'address', filter: 'agTextColumnFilter', sortable: true, width: 300 },
+    { headerName: 'वय', headerTooltip: 'वय', field: 'age', filter: 'agTextColumnFilter', sortable: true, width: 100 },
+    { headerName: 'लिंग', headerTooltip: 'लिंग', field: 'sex', filter: 'agTextColumnFilter', sortable: true, width: 100 },
+    { headerName: 'पत्ता', headerTooltip: 'पत्ता', field: 'addressN', filter: 'agTextColumnFilter', sortable: true, width: 200 },
     // Add remove action column only when viewing a favorite
     ...(isFavoriteSelected ? [{
       headerName: 'Actions',

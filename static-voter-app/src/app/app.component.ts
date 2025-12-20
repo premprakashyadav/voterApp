@@ -21,6 +21,7 @@ export class AppComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+   // this.pocketbaseService.login('voteforindia2024@gmail.com', 'voteforindia20092024');
     // Subscribe to authentication state
     // this.authService.currentUser.subscribe(user => {
     //   this.isAuthenticated = this.authService.hasDashboardAccess();
