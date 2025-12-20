@@ -22,10 +22,10 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     // Subscribe to authentication state
-    this.authService.currentUser.subscribe(user => {
-      this.isAuthenticated = this.authService.hasDashboardAccess();
-      this.currentUser = user;
-    });
+    // this.authService.currentUser.subscribe(user => {
+    //   this.isAuthenticated = this.authService.hasDashboardAccess();
+    //   this.currentUser = user;
+    // });
 
     // Subscribe to router events to update currentView
     this.router.events

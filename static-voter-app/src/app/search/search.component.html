@@ -4,17 +4,17 @@
 <div class="search-container">
   <div class="search-form">
     <div class="form-group">
-      <label class="searchBy">पहिले नाव किंवा मधले नाव किंवा आडनाव किंवा  मतदान कार्ड( किमान ३ अक्षरे टाइप करा )</label>
+      <label class="searchBy">मतदार शोधा पहिले नाव  किंवा मधले नाव किंवा आडनाव किंवा मतदान कार्ड( किमान ३ अक्षरे टाइप करा )</label>
 
 <div class="form-group">
-  <input class="form-control" type="text" id="firstname" placeholder="मतदार शोधा (किमान ३ अक्षरे टाइप करा )"
+  <input class="form-control" type="text" id="firstname" placeholder="पहिले नाव (किमान ३ अक्षरे टाइप करा )"
         [(ngModel)]="firstname">
-        <!-- <strong class="orStyle">OR</strong>
-         <input class="form-control" type="text" id="lastname" placeholder="Last Name"
+        <strong class="orStyle">किंवा</strong>
+         <input class="form-control" type="text" id="lastname" placeholder="आडनाव (किमान ३ अक्षरे टाइप करा )"
         [(ngModel)]="lastname">
-        <strong class="orStyle">OR</strong>
-         <input class="form-control" type="text" id="voterId" placeholder="Voter Id"
-        [(ngModel)]="voterId"> -->
+        <strong class="orStyle">किंवा</strong>
+         <input class="form-control" type="text" id="voterId" placeholder="मतदान कार्ड (किमान ३ अक्षरे टाइप करा )"
+        [(ngModel)]="voterId">
         <button class="btn btn-success" (click)="onSearch()">
       सबमिट करा
     </button>
@@ -88,7 +88,7 @@
            
             <!-- Contact Picker Button - Show with appropriate label -->
              <div class="d-flex">
-                              <button 
+                <button 
                   class="btn mr-2"
                   [class.btn-primary]="isContactPickerSupported"
                   [class.btn-secondary]="!isContactPickerSupported"
@@ -100,13 +100,52 @@
                      [class.fa-mobile-alt]="!isContactPickerSupported"></i>
                      {{isContactPickerSupported ? 'Pick from contacts' : 'Add phone number'}}
                 </button>
-
+      
                  <button 
                 class="btn btn-success  ms-2"
                 (click)="shareOnWhatsAppWithoutNumber(voter)"
                 title="Share without phone number (opens WhatsApp with pre-filled message)">
                 <i class="fab fa-whatsapp me-1"></i> Share Message Only
               </button>
+               <button 
+      (click)="onClick(voter)" 
+      [class]="buttonClass"
+      [disabled]="disabled"
+      type="button">
+      
+      @if (loading) {
+        <span class="spinner"></span>
+      }
+      
+      <span class="icon">{{icon}}</span>
+      <span class="text">{{text}}</span>
+    </button>
+    
+    @if (showOptions && options.length > 0) {
+      <div class="options-overlay">
+        <div class="options-container">
+          <div class="options-header">
+            <h4>Send via</h4>
+            <button (click)="closeOptions()" class="close-btn">×</button>
+          </div>
+          
+          <div class="options-grid">
+            @for (option of options; track option.id) {
+              <a 
+                [href]="option.url" 
+                [style.background]="option.color"
+                (click)="selectOption(option.id)"
+                class="option-btn"
+                [target]="option.id === 'sms' ? '_self' : '_blank'">
+                
+                <span class="option-icon">{{option.icon}}</span>
+                <span class="option-name">{{option.name}}</span>
+              </a>
+            }
+          </div>
+        </div>
+      </div>
+    }
              </div>
 
           </div>

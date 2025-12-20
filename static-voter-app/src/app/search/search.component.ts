@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit, output } from '@angular/core';
 import { VoterService } from '../services/voter.service';
 import { Voter } from '../models/voter.model';
 import PocketBase from 'pocketbase';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { SmsService } from '../services/sms.service';
 
 @Component({
   selector: 'app-search',
@@ -9,6 +11,18 @@ import PocketBase from 'pocketbase';
   styleUrls: ['./search.component.css'],
 })
 export class SearchComponent implements OnInit {
+  @Input() phone: string = '';
+  @Input() message: string = '';
+  @Input() text: string = 'Send Message';
+  @Input() icon: string = '📱';
+  @Input() buttonClass: string = 'btn btn-warning ms-2';
+  @Input() disabled: boolean = false;
+  @Input() showAllOptions: boolean = false;
+  loading = false;
+  showOptions = false;
+  options: any[] = [];
+  
+  sent = output<{phone: string; method: string}>();
   isSearched = false;
   searchFields = [
     // { value: 'assembly_no', label: 'Assembly No' },
@@ -38,70 +52,72 @@ export class SearchComponent implements OnInit {
 
   private pb = new PocketBase('https://corporatorelection.onrender.com');
 
-  private searchableFields = [
-    'constno',
-    'yadibhag',
-    'vno',
-    'age',
-    'hno',
-    'name',
-    'hname',
-    'name_english',
-    'surname',
-    'esurname',
-    'sex',
-    'cardno',
-    'relative',
-    'relative_english',
-    'relation',
-    'address',
-    'entrytype',
-    'familycode',
-    'familyqty',
-    'section_no',
-    'caste',
-    'deadalive',
-    'Dubar',
-    'mobileOld',
-    'email',
-    'shifted',
-    'blood',
-    'societyno',
-    'partyno',
-    'keypersonno',
-    'redgreen',
-    'leaderno',
-    'coleaderno',
-    'oppleaderno',
-    'voting',
-    'booth',
-    'dubarcode',
-    'adhar',
-    'ration',
-    'senior',
-    'lat',
-    'lon',
-    'gaddress',
-    'addressN',
-    'Mobile',
-  ];
-
-  constructor(private voterService: VoterService) {}
+  constructor(private voterService: VoterService, private spinner: NgxSpinnerService, private smsService: SmsService) {}
 
   ngOnInit(): void {
     // Enhanced browser detection
     this.detectBrowserAndCapabilities();
-    this.isLoading = true;
-    this.voterService.loadVotersData().subscribe({
-      next: (data: any) => {
-        this.isLoading = false;
-        console.log('Loaded voters data:', data.length);
-      },
-      error: (error: any) => {
-        this.isLoading = false;
-        console.error('Error loading data:', error);
-      },
-    });
+  }
+
+    onClick(voter: any): void {
+    if (this.disabled || this.loading) return;
+    
+    const isMobile = this.isMobileDevice();
+    
+    if (isMobile && !this.showAllOptions) {
+      // Mobile - send SMS directly
+      this.sendDirectSMS(voter);
+    } else {
+      // Show all options
+      this.showMessageOptions(voter);
+    }
+  }
+
+  private sendDirectSMS(voter: any): void {
+    this.loading = true;
+    this.shareOnCommon(voter, 'sms');
+  }
+  
+  private showMessageOptions(voter: any): void {
+        const mobileNumber = this.mobileNumbers[voter.id];
+    if (!mobileNumber) return;
+    // Clean the mobile number (remove spaces, dashes, etc.)
+    const cleanNumber = mobileNumber.replace(/\D/g, '');
+    const imageUrl = 'https://photos.app.goo.gl/UQAjr436EscrhTLo7';
+    const message = `नमस्कार:
+यादी भाग क्र.: ${voter.yadibhag}
+वॉर्ड / कॉलेज /विभाग क्रमांक: ${voter.constno}
+अ. क्र: ${voter.vno}
+विधानसभा निर्वाचन क्षेत्र संख्या: ${voter.booth.split('/')[0]}
+अनुक्रमांक भागात: ${voter.booth.split('/')[2]}
+मतदाता नाव: ${voter.name}
+भाग क्रमांक: ${voter.booth.split('/')[1]}
+मतदान कार्ड: ${voter.cardno}
+मतदान केंद्र: ${voter.address}
+वय: ${voter.age}
+लिंग: ${voter.sex}
+पत्ता: ${voter.addressN}
+रिलेटीव चे नाव: ${voter.relative}
+निशाणी: कमळ
+उमेदवार: पंकज दमयंती दत्तात्रेय देशमुख
+भारतीय जनता पार्टी
+${imageUrl}`;
+    const encodedMessage = encodeURIComponent(message);
+    this.options = this.smsService.getOptions(cleanNumber, encodedMessage);
+    this.showOptions = true;
+  }
+  
+  selectOption(method: string): void {
+    this.sent.emit({ phone: this.phone, method });
+    this.closeOptions();
+  }
+  
+  closeOptions(): void {
+    this.showOptions = false;
+  }
+  
+  private isMobileDevice(): boolean {
+    return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   }
 
   searchBasedPara(searchVal: any) {
@@ -116,86 +132,117 @@ export class SearchComponent implements OnInit {
     }
   }
 
-  async searchFamiliesDirect(query: string): Promise<any> {
-    // This complex filter finds families where:
-    // 1. Any member matches the search query
-    // 2. familyqty > 1
-    // 3. Returns all members of matching families
+async searchFamiliesDirect(query: string, field: string): Promise<any> {
+  const searchableFields = ['name', 'hname', 'esurname', 'surname', 'name_english', 'address', 'Mobile', 'cardno'];
 
-    const searchableFields = [
-      'name',
-      'surname',
-      'name_english',
-      'address',
-      'Mobile',
-      'cardno',
-    ];
+  // Helper function to safely build filter conditions
+  const buildCondition = (fieldName: string, value: string) => {
+    return `${fieldName} ~ "${value.replace(/"/g, '\\"')}"`;
+  };
 
-    // Build search condition for any field
-    const searchConditions = searchableFields
-      .map((field) => `${field} ~ "${query}"`)
-      .join(' || ');
-
-    // Find family codes where at least one member matches AND familyqty > 1
-    const familyFilter = `(${searchConditions}) && familyqty > 1`;
-
-    try {
-      // First, find matching records with familyqty > 1
-      const matchingRecords = await this.pb
-        .collection('corporatorElectionData')
-        .getFullList({
-          filter: familyFilter,
-          fields: 'familycode',
-        });
-
-      // Extract unique family codes
-      const familyCodes = [
-        ...new Set(matchingRecords.map((r) => r['familycode'])),
-      ];
-
-      if (familyCodes.length === 0) {
-        return [];
-      }
-
-      // Get ALL members of these families
-      const familyCodeFilter = familyCodes
-        .map((code) => `familycode = "${code}"`)
+  let searchConditions = '';
+  
+  switch (field) {
+    case 'name':
+      searchConditions = buildCondition('name', query);
+      break;
+    case 'lastName':
+      searchConditions = `${buildCondition('surname', query)} || ${buildCondition('esurname', query)}`;
+      break;
+    case 'voterId':
+      searchConditions = buildCondition('cardno', query);
+      break;
+    default:
+      searchConditions = searchableFields
+        .map(fieldName => buildCondition(fieldName, query))
         .join(' || ');
-
-      const allFamilyMembers = await this.pb
-        .collection('corporatorElectionData')
-        .getFullList({
-          filter: familyCodeFilter,
-          sort: 'familycode, name',
-        });
-
-      return allFamilyMembers;
-    } catch (error) {
-      console.error('Direct family search error:', error);
-      throw error;
-    }
   }
 
+  const familyFilter = `((${searchConditions}) && familyqty > 1) || ((${searchConditions}) && familyqty = '1') || (${searchConditions})`;
+
+  try {
+    const matchingRecords = await this.pb
+      .collection('corporatorElectionData')
+      .getFullList({
+        filter: familyFilter,
+        fields: 'familycode',
+      });
+
+    const familyCodes = [...new Set(matchingRecords.map((r: any) => r.familycode))];
+    
+    if (familyCodes.length === 0) return [];
+
+    const familyCodeFilter = familyCodes
+      .map(code => `familycode = "${code.replace(/"/g, '\\"')}"`)
+      .join(' || ');
+
+    const allFamilyMembers = await this.pb
+      .collection('corporatorElectionData')
+      .getFullList({
+        filter: familyCodeFilter,
+        sort: 'familycode, name',
+      });
+
+    return allFamilyMembers;
+    
+  } catch (error: any) {
+    console.error('Search error details:', {
+      message: error.message,
+      status: error.status,
+      data: error.data,
+      filter: familyFilter
+    });
+    throw error;
+  }
+}
+
+
   onSearch(): void {
+    debugger;
     if (this.firstname) {
-      this.selectedField = 'e_first_name';
-      // this.searchBasedPara(this.firstname);
-      this.searchFamiliesDirect(this.firstname)
+       this.spinner.show();
+      this.searchFamiliesDirect(this.firstname, 'name')
         .then((results) => {
           this.searchResults = results;
           this.isSearched = results.length === 0;
+          this.spinner.hide();
         })
         .catch((error) => {
           console.error('Search error:', error);
           this.isSearched = true;
           this.searchResults = [];
+          this.spinner.hide();
         });
-    } else if (this.lastname) {
-      this.selectedField = 'e_last_name';
-      this.searchBasedPara(this.lastname);
-    } else if (this.voterId) {
-      this.selectedField = 'vcardid';
-      this.searchBasedPara(this.voterId);
+    } else if(this.lastname) {
+             this.spinner.show();
+      this.searchFamiliesDirect(this.lastname, 'lastName')
+        .then((results) => {
+          this.searchResults = results;
+          this.isSearched = results.length === 0;
+          this.spinner.hide();
+        })
+        .catch((error) => {
+          console.error('Search error:', error);
+          this.isSearched = true;
+          this.searchResults = [];
+          this.spinner.hide();
+        });
+
+    } else if(this.voterId) {
+             this.spinner.show();
+      this.searchFamiliesDirect(this.voterId, 'voterId')
+        .then((results) => {
+          this.searchResults = results;
+          this.isSearched = results.length === 0;
+          this.spinner.hide();
+        })
+        .catch((error) => {
+          console.error('Search error:', error);
+          this.isSearched = true;
+          this.searchResults = [];
+          this.spinner.hide();
+        });
+
     } else {
       this.isSearched = true;
       this.searchResults = [];
@@ -212,12 +259,13 @@ export class SearchComponent implements OnInit {
     );
     const mobileNumber = this.mobileNumbers[voter.id];
     if (!mobileNumber) return;
-    sameFamilyData.forEach((familyVoter) => {
-      this.shareOnWhatsApp(familyVoter);
-    });
+    this.shareOnCommon(voter, 'whatsapp');
+    // sameFamilyData.forEach((familyVoter) => {
+    //   this.shareOnWhatsApp(familyVoter);
+    // });
   }
 
-  shareOnWhatsApp(voter: Voter): void {
+  shareOnCommon(voter: Voter, type: string): void {
     const mobileNumber = this.mobileNumbers[voter.id];
     if (!mobileNumber) return;
     // Clean the mobile number (remove spaces, dashes, etc.)
@@ -243,6 +291,11 @@ export class SearchComponent implements OnInit {
 ${imageUrl}`;
     let whatsappUrl;
     const encodedMessage = encodeURIComponent(message);
+    if(type === 'sms'){
+      // Send SMS
+      this.smsService.send(cleanNumber, encodedMessage);
+      this.sent.emit({ phone: cleanNumber, method: 'sms' });
+    } else if(type === 'whatsapp'){
     if (cleanNumber.length > 10 && cleanNumber.startsWith('91')) {
       whatsappUrl = `https://wa.me/+${cleanNumber}?text=${encodedMessage}`;
     } else if (cleanNumber.length === 10) {
@@ -250,6 +303,7 @@ ${imageUrl}`;
     }
 
     window.open(whatsappUrl, '_blank');
+  }
   }
 
   // Export filtered data

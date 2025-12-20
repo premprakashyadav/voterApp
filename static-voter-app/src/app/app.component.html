@@ -23,22 +23,22 @@
             </a>
           </li>
           <li class="nav-item">
-            <a 
+            <!-- <a 
               class="nav-link" 
               [routerLink]="['/dashboard']"
               routerLinkActive="active"
               (click)="preventReload($event)"
               *ngIf="isAuthenticated">
               <i class="fas fa-chart-bar me-1"></i> सर्व मतदार पोर्टल
-            </a>
-            <a 
+            </a> -->
+            <!-- <a 
               class="nav-link" 
               [routerLink]="['/login']" 
               [queryParams]="{returnUrl: 'dashboard'}"
               (click)="preventReload($event)"
               *ngIf="!isAuthenticated">
-              <i class="fas fa-chart-bar me-1"></i> Dashboard
-            </a>
+              <i class="fas fa-chart-bar me-1"></i> सर्व मतदार पोर्टल
+            </a> -->
           </li>
         </ul>
         
@@ -66,13 +66,13 @@
         </div>
         
         <!-- Login Button -->
-        <div class="navbar-nav" *ngIf="!isAuthenticated && currentView !== 'login'">
+        <!-- <div class="navbar-nav" *ngIf="!isAuthenticated && currentView !== 'login'">
           <li class="nav-item">
             <a class="nav-link" [routerLink]="['/login']" [queryParams]="{returnUrl: 'dashboard'}" (click)="preventReload($event)">
               <i class="fas fa-sign-in-alt me-1"></i> Login
             </a>
           </li>
-        </div>
+        </div> -->
       </div>
     </div>
   </nav>
@@ -80,6 +80,7 @@
   <!-- Main Content - Router Outlet Only -->
   <main class="container-fluid mt-3">
     <h2 class="text-white text-center">वसई विरार शहर महानगरपालिका</h2>
+    <ngx-spinner type="ball-scale-multiple"></ngx-spinner>
     <router-outlet></router-outlet>
   </main>
 </div>

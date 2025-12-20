@@ -4,6 +4,7 @@ import { Voter, FavoriteList } from '../models/voter.model';
 import { themeQuartz } from 'ag-grid-community';
 import { VoterService } from '../services/voter.service';
 import PocketBase from 'pocketbase';
+import { NgxSpinnerService } from 'ngx-spinner';
 
 // Register AG Grid modules
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -34,7 +35,7 @@ export class DashboardComponent implements OnInit {
 
   defaultColDef: ColDef = {
     flex: 1,
-    minWidth: 100,
+    minWidth: 200,
     resizable: true,
     filter: true,
     sortable: true,
@@ -44,29 +45,35 @@ export class DashboardComponent implements OnInit {
   isLoading: boolean = false;
   showCreateFavoriteModal: boolean = false;
  private pb = new PocketBase('https://corporatorelection.onrender.com');
-  constructor(private voterService: VoterService) {}
+  constructor(private voterService: VoterService, private spinner: NgxSpinnerService) {}
 
   ngOnInit(): void {
     this.columnDefs = this.getColumnDefs();
-    this.voterService.loadVotersData().subscribe(data => {
-      this.rowData = data;
-    });
     this.loadData();
     this.loadFavorites();
   }
 
-    loadData(): void {
-    this.isLoading = true;
-    this.voterService.loadVotersData().subscribe({
-      next: (data: any[]) => {
-        this.rowData = data;
-        this.isLoading = false;
-      },
-      error: (error: any) => {
-        console.error('Error loading data:', error);
-        this.isLoading = false;
-      }
-    });
+   async loadData(): Promise<void> {
+    this.spinner.show();
+    let records = [];
+    records = await this.pb.collection('corporatorElectionData').getFullList();
+    if(records.length > 0){
+      this.rowData = records;
+      this.spinner.hide();
+    } else {
+      this.spinner.hide();
+    }
+    
+    // this.voterService.loadVotersData().subscribe({
+    //   next: (data: any[]) => {
+    //     this.rowData = data;
+    //     this.isLoading = false;
+    //   },
+    //   error: (error: any) => {
+    //     console.error('Error loading data:', error);
+    //     this.isLoading = false;
+    //   }
+    // });
   }
 
   // Helper method to select a favorite
@@ -98,16 +105,33 @@ getFavoriteById(favoriteId: string): FavoriteList | undefined {
       filter: false,
       sortable: false
     },
-    { headerName: 'First Name', field: 'e_first_name', filter: true, sortable: true },
-    { headerName: 'Middle Name', field: 'e_middle_name', filter: true, sortable: true },
-    { headerName: 'Last Name', field: 'e_last_name', filter: true, sortable: true },
-    { headerName: 'Assembly No', field: 'assembly_no', filter: true, sortable: true },
-    { headerName: 'Part No', field: 'part_no', filter: true, sortable: true },
-    { headerName: 'Booth ID', field: 'boothid', filter: true, sortable: true },
-    { headerName: 'Voter Card ID', field: 'vcardid', filter: true, sortable: true },
-    { headerName: 'Assembly Name', field: 'e_assemblyname', filter: true, sortable: true },
-    { headerName: 'Age', field: 'age', filter: true, sortable: true },
-    { headerName: 'Sex', field: 'sex', filter: true, sortable: true },
+    { headerName: 'यादी भाग क्र', field: 'yadibhag', filter: true, sortable: true, width: 60 },
+    { headerName: 'वॉर्ड / कॉलेज /विभाग क्रमांक', field: 'constno', filter: true, sortable: true, width: 60 },
+    { headerName: 'अ. क्र.', field: 'vno', filter: true, sortable: true },
+    { headerName: 'विधानसभा निर्वाचन क्षेत्र संख्या', field: 'booth', filter: true, sortable: true,width: 100,
+      valueGetter: (params: any) => {
+        return params.data.booth.split('/')[0];
+      }
+     },
+    { headerName: 'अनुक्रमांक भागात', field: 'booth', filter: true, sortable: true,
+      width: 70,
+            valueGetter: (params: any) => {
+        return params.data.booth.split('/')[2];
+      }
+     },
+    { headerName: 'भाग क्रमांक', field: 'booth', filter: true, sortable: true,
+      width: 60,
+            valueGetter: (params: any) => {
+        return params.data.booth.split('/')[1];
+      }
+     },
+    { headerName: 'पूर्ण नाव', field: 'name', filter: true, sortable: true, width: 120 },
+    { headerName: 'मतदान कार्ड', field: 'cardno', filter: true, sortable: true, width: 70 },
+    { headerName: 'मोबाइल', field: 'Mobile', filter: true, sortable: true, width: 70 },
+    { headerName: 'मतदान केंद्र', field: 'address', filter: true, sortable: true, width: 200 },
+    { headerName: 'वय', field: 'age', filter: true, sortable: true },
+    { headerName: 'लिंग', field: 'sex', filter: true, sortable: true, width: 200 },
+    { headerName: 'पत्ता', field: 'addressN', filter: true, sortable: true },
     // Add remove action column only when viewing a favorite
     ...(isFavoriteSelected ? [{
       headerName: 'Actions',
@@ -223,12 +247,13 @@ removeVoterFromGrid(voterId: string): void {
 
   onFavoriteChange(): void {
     if (this.selectedFavorite === 'all') {
-      this.voterService.loadVotersData().subscribe((data: any) => {
-        this.rowData = data;
-        if (this.gridApi) {
-          this.gridApi.deselectAll();
-        }
-      });
+      this.loadData();
+      // this.voterService.loadVotersData().subscribe((data: any) => {
+      //   this.rowData = data;
+      //   if (this.gridApi) {
+      //     this.gridApi.deselectAll();
+      //   }
+      // });
     } else {
       this.rowData = this.voterService.getFavoriteVoters(this.selectedFavorite);
       if (this.gridApi) {

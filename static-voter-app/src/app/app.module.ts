@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 
 // AG Grid imports
 import { AgGridModule } from 'ag-grid-angular';
@@ -19,6 +19,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { AuthService } from './services/auth.service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AccordionComponent, AccordionPanelComponent } from 'ngx-bootstrap/accordion';
+import { NgxSpinnerModule } from 'ngx-spinner';
 
 @NgModule({
   declarations: [
@@ -36,11 +37,13 @@ import { AccordionComponent, AccordionPanelComponent } from 'ngx-bootstrap/accor
     ReactiveFormsModule,
     HttpClientModule,
     AgGridModule,
-    AppRoutingModule
+    AppRoutingModule,
+    NgxSpinnerModule.forRoot({ type: 'ball-scale-multiple' })
   ],
   providers: [
-    AuthService,
-    AuthGuard ],
+   // AuthService,
+    //AuthGuard 
+    ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
