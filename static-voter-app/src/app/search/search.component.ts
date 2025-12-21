@@ -104,7 +104,7 @@ export class SearchComponent implements OnInit {
 उमेदवार: पंकज दमयंती दत्तात्रेय देशमुख
 भारतीय जनता पार्टी
 ${imageUrl}`;
-    const encodedMessage = encodeURIComponent(message);
+    const encodedMessage = message;
     this.options = this.smsService.getOptions(cleanNumber, encodedMessage);
     this.showOptions = true;
   }
@@ -306,12 +306,14 @@ const buildCondition = (fieldName: string, value: string) => {
 भारतीय जनता पार्टी
 ${imageUrl}`;
     let whatsappUrl;
-    const encodedMessage = encodeURIComponent(message);
+    let encodedMessage;
     if (type === 'sms') {
       // Send SMS
+      encodedMessage = message;
       this.smsService.send(cleanNumber, encodedMessage);
       this.sent.emit({ phone: cleanNumber, method: 'sms' });
     } else if (type === 'whatsapp') {
+      encodedMessage = encodeURIComponent(message);
       if (cleanNumber.length > 10 && cleanNumber.startsWith('91')) {
         whatsappUrl = `https://wa.me/+${cleanNumber}?text=${encodedMessage}`;
       } else if (cleanNumber.length === 10) {
