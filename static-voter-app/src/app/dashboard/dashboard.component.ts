@@ -92,6 +92,11 @@ getFavoriteById(favoriteId: string): FavoriteList | undefined {
    // params.api.sizeColumnsToFit();
   }
 
+  resetAllFilters() {
+  this.gridApi.setFilterModel(null);
+  this.gridApi.onFilterChanged();
+}
+
   getColumnDefs(): ColDef[] {
   const isFavoriteSelected = this.selectedFavorite && this.selectedFavorite !== 'all';
   

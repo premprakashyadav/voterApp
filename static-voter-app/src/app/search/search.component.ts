@@ -62,6 +62,7 @@ export class SearchComponent implements OnInit {
     // Enhanced browser detection
     this.detectBrowserAndCapabilities();
   }
+  
 
   onClick(voter: any): void {
     if (!voter.id) return;
