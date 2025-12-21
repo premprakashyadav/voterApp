@@ -15,7 +15,7 @@ jobs:
 
       - name: Ping Render API with retries and log
         run: |
-          URL="https://corporatorelection.onrender.com/api/collections/corporatorElectionData/records/wt3vodicx6xqm89"
+          URL="https://corporatorelection.onrender.com/api/health"
           MAX_RETRIES=3
           RETRY_COUNT=0
           STATUS=0
