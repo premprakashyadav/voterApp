@@ -286,6 +286,7 @@ const buildCondition = (fieldName: string, value: string) => {
   }
 
   shareOnCommon(voter: Voter, type: string): void {
+    this.onMobileNumberChange(voter.id, voter.Mobile);
     const mobileNumber = this.mobileNumbers[voter.id];
     if (!mobileNumber) return;
     // Clean the mobile number (remove spaces, dashes, etc.)
