@@ -126,6 +126,10 @@ getFavoriteById(favoriteId: string): FavoriteList | undefined {
       }
      },
     { headerName: 'पूर्ण नाव', headerTooltip: 'पूर्ण नाव', field: 'name', filter: 'agTextColumnFilter', sortable: true, width: 250 },
+    { headerName: 'पहिले नाव (MARATHI)', headerTooltip: 'पहिले नाव (MARATHI)', field: 'hname', filter: 'agTextColumnFilter', sortable: true, width: 250 },
+    { headerName: 'पहिले नाव (ENG)', headerTooltip: 'पहिले नाव (ENG)', field: 'name_english', filter: 'agTextColumnFilter', sortable: true, width: 250 },
+    { headerName: 'आडनाव (MARATHI)', headerTooltip: 'आडनाव (MARATHI)', field: 'surname', filter: 'agTextColumnFilter', sortable: true, width: 250 },
+    { headerName: 'आडनाव (ENG)', headerTooltip: 'आडनाव (ENG)', field: 'esurname', filter: 'agTextColumnFilter', sortable: true, width: 250 },
     { headerName: 'मतदान कार्ड', headerTooltip: 'मतदान कार्ड', field: 'cardno', filter: 'agTextColumnFilter', sortable: true, width: 250 },
     { headerName: 'मोबाइल', headerTooltip: 'मोबाइल', field: 'Mobile', filter: 'agTextColumnFilter', sortable: true, width: 150 },
     { headerName: 'मतदान केंद्र', headerTooltip: 'मतदान केंद्र', field: 'address', filter: 'agTextColumnFilter', sortable: true, width: 300 },

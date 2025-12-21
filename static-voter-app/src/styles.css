@@ -14,7 +14,15 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f06a23;
+  /* background-color: #f06a23; */
+  background: linear-gradient(
+  to bottom,
+  #f6b43a 0%,   /* saffron yellow */
+  #f9d77a 25%,
+  #ffffff 55%, /* white center */
+  #fff1e0 75%,
+  #f7c48b 100%
+);;
 }
 
 .ag-theme-alpine {

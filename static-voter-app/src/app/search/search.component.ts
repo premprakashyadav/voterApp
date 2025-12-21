@@ -13,7 +13,7 @@ import { SmsService } from '../services/sms.service';
 export class SearchComponent implements OnInit {
   @Input() phone: string = '';
   @Input() message: string = '';
-  @Input() text: string = 'Send Message';
+  @Input() text: string = 'Send SMS';
   @Input() icon: string = '📱';
   @Input() buttonClass: string = 'btn btn-warning ms-2';
   @Input() disabled: boolean = false;
@@ -21,8 +21,8 @@ export class SearchComponent implements OnInit {
   loading = false;
   showOptions = false;
   options: any[] = [];
-  
-  sent = output<{phone: string; method: string}>();
+
+  sent = output<{ phone: string; method: string }>();
   isSearched = false;
   searchFields = [
     // { value: 'assembly_no', label: 'Assembly No' },
@@ -52,18 +52,23 @@ export class SearchComponent implements OnInit {
 
   private pb = new PocketBase('https://corporatorelection.onrender.com');
 
-  constructor(private voterService: VoterService, private spinner: NgxSpinnerService, private smsService: SmsService) {}
+  constructor(
+    private voterService: VoterService,
+    private spinner: NgxSpinnerService,
+    private smsService: SmsService
+  ) {}
 
   ngOnInit(): void {
     // Enhanced browser detection
     this.detectBrowserAndCapabilities();
   }
 
-    onClick(voter: any): void {
-    if (this.disabled || this.loading) return;
-    
+  onClick(voter: any): void {
+    if (!voter.id) return;
+  //  if (this.disabled || this.loading) return;
+
     const isMobile = this.isMobileDevice();
-    
+
     if (isMobile && !this.showAllOptions) {
       // Mobile - send SMS directly
       this.sendDirectSMS(voter);
@@ -77,9 +82,10 @@ export class SearchComponent implements OnInit {
     this.loading = true;
     this.shareOnCommon(voter, 'sms');
   }
-  
+
   private showMessageOptions(voter: any): void {
-        const mobileNumber = this.mobileNumbers[voter.id];
+    this.onMobileNumberChange(voter.id, voter.Mobile);
+    const mobileNumber = this.mobileNumbers[voter.id];
     if (!mobileNumber) return;
     // Clean the mobile number (remove spaces, dashes, etc.)
     const cleanNumber = mobileNumber.replace(/\D/g, '');
@@ -88,16 +94,12 @@ export class SearchComponent implements OnInit {
 यादी भाग क्र.: ${voter.yadibhag}
 वॉर्ड / कॉलेज /विभाग क्रमांक: ${voter.constno}
 अ. क्र: ${voter.vno}
-विधानसभा निर्वाचन क्षेत्र संख्या: ${voter.booth.split('/')[0]}
+विधानसभा: ${voter.booth.split('/')[0]}
 अनुक्रमांक भागात: ${voter.booth.split('/')[2]}
 मतदाता नाव: ${voter.name}
 भाग क्रमांक: ${voter.booth.split('/')[1]}
 मतदान कार्ड: ${voter.cardno}
-मतदान केंद्र: ${voter.address}
-वय: ${voter.age}
-लिंग: ${voter.sex}
 पत्ता: ${voter.addressN}
-रिलेटीव चे नाव: ${voter.relative}
 निशाणी: कमळ
 उमेदवार: पंकज दमयंती दत्तात्रेय देशमुख
 भारतीय जनता पार्टी
@@ -106,16 +108,16 @@ ${imageUrl}`;
     this.options = this.smsService.getOptions(cleanNumber, encodedMessage);
     this.showOptions = true;
   }
-  
+
   selectOption(method: string): void {
     this.sent.emit({ phone: this.phone, method });
     this.closeOptions();
   }
-  
+
   closeOptions(): void {
     this.showOptions = false;
   }
-  
+
   private isMobileDevice(): boolean {
     return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   }
@@ -133,75 +135,90 @@ ${imageUrl}`;
   }
 
 async searchFamiliesDirect(query: string, field: string): Promise<any> {
-  const searchableFields = ['name', 'hname', 'esurname', 'surname', 'name_english', 'address', 'Mobile', 'cardno'];
+    const searchableFields = [
+      'name',
+      'hname',
+      'esurname',
+      'surname',
+      'name_english',
+      'address',
+      'Mobile',
+      'cardno',
+    ];
 
-  // Helper function to safely build filter conditions
-  const buildCondition = (fieldName: string, value: string) => {
-    return `${fieldName} ~ "${value.replace(/"/g, '\\"')}"`;
-  };
+    // Helper function to safely build filter conditions
+   const escapeRegex = (value: string) =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-  let searchConditions = '';
-  
-  switch (field) {
-    case 'name':
-      searchConditions = buildCondition('name', query);
-      break;
-    case 'lastName':
-      searchConditions = `${buildCondition('surname', query)} || ${buildCondition('esurname', query)}`;
-      break;
-    case 'voterId':
-      searchConditions = buildCondition('cardno', query);
-      break;
-    default:
-      searchConditions = searchableFields
-        .map(fieldName => buildCondition(fieldName, query))
+const buildCondition = (fieldName: string, value: string) => {
+  const escaped = escapeRegex(value).replace(/"/g, '\\"');
+  return `${fieldName} ~ "${escaped}"`;
+};
+
+    let searchConditions = '';
+
+    switch (field) {
+      case 'firstname':
+        searchConditions = `${buildCondition('name',query)} || ${buildCondition('hname',query)} || ${buildCondition('name_english', query)}`;;
+        break;
+      case 'lastName':
+       searchConditions = `${buildCondition('surname',query)} || ${buildCondition('esurname', query)}`;
+        break;
+      case 'voterId':
+        searchConditions = buildCondition('cardno', query);
+        break;
+      default:
+        searchConditions = searchableFields
+          .map((fieldName) => buildCondition(fieldName, query))
+          .join(' || ');
+    }
+
+    const familyFilter = `(${searchConditions}) && familyqty >= 1`;
+
+    try {
+      const matchingRecords = await this.pb
+        .collection('corporatorElectionData')
+        .getFullList({
+          filter: familyFilter,
+          fields: 'familycode',
+        });
+
+      const familyCodes = [
+        ...new Set(matchingRecords.map((r: any) => r.familycode)),
+      ];
+
+      if (familyCodes.length === 0) return [];
+
+      const familyCodeFilter = familyCodes
+        .map((code) => `familycode = "${code.replace(/"/g, '\\"')}"`)
         .join(' || ');
-  }
 
-  const familyFilter = `((${searchConditions}) && familyqty > 1) || ((${searchConditions}) && familyqty = '1') || (${searchConditions})`;
+      const allFamilyMembers = await this.pb
+        .collection('corporatorElectionData')
+        .getFullList({
+          filter: familyCodeFilter,
+          sort: 'familycode, name',
+        });
 
-  try {
-    const matchingRecords = await this.pb
-      .collection('corporatorElectionData')
-      .getFullList({
+      return allFamilyMembers;
+    } catch (error: any) {
+      console.error('Search error details:', {
+        message: error.message,
+        status: error.status,
+        data: error.data,
         filter: familyFilter,
-        fields: 'familycode',
       });
-
-    const familyCodes = [...new Set(matchingRecords.map((r: any) => r.familycode))];
-    
-    if (familyCodes.length === 0) return [];
-
-    const familyCodeFilter = familyCodes
-      .map(code => `familycode = "${code.replace(/"/g, '\\"')}"`)
-      .join(' || ');
-
-    const allFamilyMembers = await this.pb
-      .collection('corporatorElectionData')
-      .getFullList({
-        filter: familyCodeFilter,
-        sort: 'familycode, name',
-      });
-
-    return allFamilyMembers;
-    
-  } catch (error: any) {
-    console.error('Search error details:', {
-      message: error.message,
-      status: error.status,
-      data: error.data,
-      filter: familyFilter
-    });
-    throw error;
+      throw error;
+    }
   }
-}
 
 
   onSearch(): void {
-    debugger;
     if (this.firstname) {
-       this.spinner.show();
-      this.searchFamiliesDirect(this.firstname, 'name')
+      this.lastname = '';
+      this.voterId = '';
+      this.spinner.show();
+      this.searchFamiliesDirect(this.firstname, 'firstname')
         .then((results) => {
           this.searchResults = results;
           this.isSearched = results.length === 0;
@@ -213,8 +230,10 @@ async searchFamiliesDirect(query: string, field: string): Promise<any> {
           this.searchResults = [];
           this.spinner.hide();
         });
-    } else if(this.lastname) {
-             this.spinner.show();
+    } else if (this.lastname) {
+      this.firstname = '';
+      this.voterId = '';
+      this.spinner.show();
       this.searchFamiliesDirect(this.lastname, 'lastName')
         .then((results) => {
           this.searchResults = results;
@@ -227,9 +246,10 @@ async searchFamiliesDirect(query: string, field: string): Promise<any> {
           this.searchResults = [];
           this.spinner.hide();
         });
-
-    } else if(this.voterId) {
-             this.spinner.show();
+    } else if (this.voterId) {
+      this.firstname = '';
+      this.lastname = '';
+      this.spinner.show();
       this.searchFamiliesDirect(this.voterId, 'voterId')
         .then((results) => {
           this.searchResults = results;
@@ -242,7 +262,6 @@ async searchFamiliesDirect(query: string, field: string): Promise<any> {
           this.searchResults = [];
           this.spinner.hide();
         });
-
     } else {
       this.isSearched = true;
       this.searchResults = [];
@@ -254,9 +273,10 @@ async searchFamiliesDirect(query: string, field: string): Promise<any> {
   }
 
   shareAllOnWhatsApp(voter: Voter): void {
-    let sameFamilyData = this.searchResults.filter(
-      (v) => v.familycode === voter.familycode
-    );
+    this.onMobileNumberChange(voter.id, voter.Mobile);
+    // let sameFamilyData = this.searchResults.filter(
+    //   (v) => v.familycode === voter.familycode
+    // );
     const mobileNumber = this.mobileNumbers[voter.id];
     if (!mobileNumber) return;
     this.shareOnCommon(voter, 'whatsapp');
@@ -275,35 +295,31 @@ async searchFamiliesDirect(query: string, field: string): Promise<any> {
 यादी भाग क्र.: ${voter.yadibhag}
 वॉर्ड / कॉलेज /विभाग क्रमांक: ${voter.constno}
 अ. क्र: ${voter.vno}
-विधानसभा निर्वाचन क्षेत्र संख्या: ${voter.booth.split('/')[0]}
+विधानसभा: ${voter.booth.split('/')[0]}
 अनुक्रमांक भागात: ${voter.booth.split('/')[2]}
 मतदाता नाव: ${voter.name}
 भाग क्रमांक: ${voter.booth.split('/')[1]}
 मतदान कार्ड: ${voter.cardno}
-मतदान केंद्र: ${voter.address}
-वय: ${voter.age}
-लिंग: ${voter.sex}
 पत्ता: ${voter.addressN}
-रिलेटीव चे नाव: ${voter.relative}
 निशाणी: कमळ
 उमेदवार: पंकज दमयंती दत्तात्रेय देशमुख
 भारतीय जनता पार्टी
 ${imageUrl}`;
     let whatsappUrl;
     const encodedMessage = encodeURIComponent(message);
-    if(type === 'sms'){
+    if (type === 'sms') {
       // Send SMS
       this.smsService.send(cleanNumber, encodedMessage);
       this.sent.emit({ phone: cleanNumber, method: 'sms' });
-    } else if(type === 'whatsapp'){
-    if (cleanNumber.length > 10 && cleanNumber.startsWith('91')) {
-      whatsappUrl = `https://wa.me/+${cleanNumber}?text=${encodedMessage}`;
-    } else if (cleanNumber.length === 10) {
-      whatsappUrl = `https://wa.me/+91${cleanNumber}?text=${encodedMessage}`;
-    }
+    } else if (type === 'whatsapp') {
+      if (cleanNumber.length > 10 && cleanNumber.startsWith('91')) {
+        whatsappUrl = `https://wa.me/+${cleanNumber}?text=${encodedMessage}`;
+      } else if (cleanNumber.length === 10) {
+        whatsappUrl = `https://wa.me/+91${cleanNumber}?text=${encodedMessage}`;
+      }
 
-    window.open(whatsappUrl, '_blank');
-  }
+      window.open(whatsappUrl, '_blank');
+    }
   }
 
   // Export filtered data
@@ -508,16 +524,12 @@ Or simply type the number manually.
 यादी भाग क्र.: ${voter.yadibhag}
 वॉर्ड / कॉलेज /विभाग क्रमांक: ${voter.constno}
 अ. क्र: ${voter.vno}
-विधानसभा निर्वाचन क्षेत्र संख्या: ${voter.booth.split('/')[0]}
+विधानसभा: ${voter.booth.split('/')[0]}
 अनुक्रमांक भागात: ${voter.booth.split('/')[2]}
 मतदाता नाव: ${voter.name}
 भाग क्रमांक: ${voter.booth.split('/')[1]}
 मतदान कार्ड: ${voter.cardno}
-मतदान केंद्र: ${voter.address}
-वय: ${voter.age}
-लिंग: ${voter.sex}
 पत्ता: ${voter.addressN}
-रिलेटीव चे नाव: ${voter.relative}
 निशाणी: कमळ
 उमेदवार: पंकज दमयंती दत्तात्रेय देशमुख
 भारतीय जनता पार्टी
@@ -529,10 +541,10 @@ ${imageUrl}`;
   // Open WhatsApp with pre-filled message
   private openWhatsAppWithMessage(message: string): void {
     // Encode the message for URL
-    const encodedMessage = encodeURIComponent(message);
+   // const encodedMessage = encodeURIComponent(message);
 
     // WhatsApp API URL without phone number
-    const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+    const whatsappUrl = `https://wa.me/?text=${message}`;
 
     // Open in new window
     const windowFeatures = 'width=600,height=700,scrollbars=yes,resizable=yes';

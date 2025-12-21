@@ -2,15 +2,15 @@
   <!-- Navigation Bar -->
   <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid">
-      <a class="navbar-brand" [routerLink]="['/search']" (click)="preventReload($event)">
-        <img src="logo.jpg" height="50" alt="voter search"/>
+      <a class="navbar-brand text-center" [routerLink]="['/search']" (click)="preventReload($event)">
+        <img src="top.png" class="img-fluid" height="100" alt="voter search"/>
       </a>
       
-      <button class="navbar-toggler" type="button" (click)="toggleNavbar()" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <!-- <button class="navbar-toggler" type="button" (click)="toggleNavbar()" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
-      </button>
+      </button> -->
       
-      <div class="collapse navbar-collapse" id="navbarNav" [class.show]="navbarOpen">
+      <!-- <div class="collapse navbar-collapse" id="navbarNav" [class.show]="navbarOpen">
         <ul class="navbar-nav me-auto">
           <li class="nav-item">
             <a 
@@ -23,26 +23,26 @@
             </a>
           </li>
           <li class="nav-item">
-            <!-- <a 
+            <a 
               class="nav-link" 
               [routerLink]="['/dashboard']"
               routerLinkActive="active"
               (click)="preventReload($event)"
               *ngIf="isAuthenticated">
               <i class="fas fa-chart-bar me-1"></i> सर्व मतदार पोर्टल
-            </a> -->
-            <!-- <a 
+            </a> 
+            <a 
               class="nav-link" 
               [routerLink]="['/login']" 
               [queryParams]="{returnUrl: 'dashboard'}"
               (click)="preventReload($event)"
               *ngIf="!isAuthenticated">
               <i class="fas fa-chart-bar me-1"></i> सर्व मतदार पोर्टल
-            </a> -->
+            </a>
           </li>
         </ul>
         
-        <!-- User Info & Logout - SIMPLE VERSION -->
+
         <div class="navbar-nav" *ngIf="isAuthenticated && currentUser">
           <div class="nav-item">
             <div class="dropdown">
@@ -65,21 +65,23 @@
           </div>
         </div>
         
-        <!-- Login Button -->
-        <!-- <div class="navbar-nav" *ngIf="!isAuthenticated && currentView !== 'login'">
+        <div class="navbar-nav" *ngIf="!isAuthenticated && currentView !== 'login'">
           <li class="nav-item">
             <a class="nav-link" [routerLink]="['/login']" [queryParams]="{returnUrl: 'dashboard'}" (click)="preventReload($event)">
               <i class="fas fa-sign-in-alt me-1"></i> Login
             </a>
           </li>
-        </div> -->
-      </div>
+        </div>
+      </div> -->
     </div>
   </nav>
 
   <!-- Main Content - Router Outlet Only -->
-  <main class="container-fluid mt-3">
-    <h2 class="text-white text-center">वसई विरार शहर महानगरपालिका निवडणुक २०२५-2026</h2>
+  <main class="container-fluid px-0">
+    <div class="heading">
+      <h2>वसई विरार शहर महानगरपालिका</h2>
+      <h3>निवडणुक २०२५-2026</h3>
+    </div>
     <ngx-spinner type="ball-scale-multiple"></ngx-spinner>
     <router-outlet></router-outlet>
   </main>
