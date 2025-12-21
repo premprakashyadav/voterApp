@@ -75,7 +75,7 @@ export class SmsService {
         id: 'sms',
         name: 'SMS',
         icon: '📱',
-        url: `sms:${cleanPhone}?body=${encodedMsg}`,
+        url: `sms:${cleanPhone}?body=${message}`,
         color: '#3498db'
       },
       {
