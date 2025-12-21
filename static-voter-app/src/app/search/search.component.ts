@@ -99,7 +99,6 @@ export class SearchComponent implements OnInit {
 मतदाता नाव: ${voter.name}
 भाग क्रमांक: ${voter.booth.split('/')[1]}
 मतदान कार्ड: ${voter.cardno}
-पत्ता: ${voter.addressN}
 निशाणी: कमळ
 उमेदवार: पंकज दमयंती दत्तात्रेय देशमुख
 भारतीय जनता पार्टी
@@ -141,7 +140,6 @@ async searchFamiliesDirect(query: string, field: string): Promise<any> {
       'esurname',
       'surname',
       'name_english',
-      'address',
       'Mobile',
       'cardno',
     ];
@@ -301,7 +299,6 @@ const buildCondition = (fieldName: string, value: string) => {
 मतदाता नाव: ${voter.name}
 भाग क्रमांक: ${voter.booth.split('/')[1]}
 मतदान कार्ड: ${voter.cardno}
-पत्ता: ${voter.addressN}
 निशाणी: कमळ
 उमेदवार: पंकज दमयंती दत्तात्रेय देशमुख
 भारतीय जनता पार्टी
@@ -532,7 +529,6 @@ Or simply type the number manually.
 मतदाता नाव: ${voter.name}
 भाग क्रमांक: ${voter.booth.split('/')[1]}
 मतदान कार्ड: ${voter.cardno}
-पत्ता: ${voter.addressN}
 निशाणी: कमळ
 उमेदवार: पंकज दमयंती दत्तात्रेय देशमुख
 भारतीय जनता पार्टी
