@@ -131,6 +131,11 @@ getFavoriteById(favoriteId: string): FavoriteList | undefined {
       }
      },
     { headerName: 'पूर्ण नाव', headerTooltip: 'पूर्ण नाव', field: 'name', filter: 'agTextColumnFilter', sortable: true, width: 250 },
+    { headerName: 'पूर्ण नाव (ENG)', headerTooltip: 'पूर्ण नाव (ENG)', field: 'fullName', filter: 'agTextColumnFilter', sortable: true, width: 250,
+       valueGetter: (params: any) => {
+        return params.data.esurname + ' ' + params.data.name_english + ' ' + params.data.relative_english;
+      }
+     },
     { headerName: 'पहिले नाव (MARATHI)', headerTooltip: 'पहिले नाव (MARATHI)', field: 'hname', filter: 'agTextColumnFilter', sortable: true, width: 250 },
     { headerName: 'पहिले नाव (ENG)', headerTooltip: 'पहिले नाव (ENG)', field: 'name_english', filter: 'agTextColumnFilter', sortable: true, width: 250 },
     { headerName: 'आडनाव (MARATHI)', headerTooltip: 'आडनाव (MARATHI)', field: 'surname', filter: 'agTextColumnFilter', sortable: true, width: 250 },
