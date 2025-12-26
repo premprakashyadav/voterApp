@@ -50,7 +50,7 @@ export class SearchComponent implements OnInit {
   mobileNumbers: { [key: string]: string } = {};
   isLoading: boolean = false;
 
-  private pb = new PocketBase('https://corporatorelection.onrender.com');
+  private pb = new PocketBase('https://corporatorelectionnew.onrender.com');
 
   constructor(
     private voterService: VoterService,
