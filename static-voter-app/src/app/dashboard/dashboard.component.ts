@@ -44,7 +44,7 @@ export class DashboardComponent implements OnInit {
   newFavoriteName: string = '';
   isLoading: boolean = false;
   showCreateFavoriteModal: boolean = false;
- private pb = new PocketBase('https://corporatorelection.onrender.com');
+ private pb = new PocketBase('https://corporatorelectionnew.onrender.com');
   constructor(private voterService: VoterService, private spinner: NgxSpinnerService) {}
 
   ngOnInit(): void {
