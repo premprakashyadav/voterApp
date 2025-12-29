@@ -1,6 +1,17 @@
 <div class="dashboard-container">
   <div class="dashboard-header">
     <h2>Voter Dashboard</h2>
+      <!-- Existing Context Menu -->
+<div *ngIf="showContextMenu" 
+     class="context-menu"
+     [style.left.px]="contextMenuX"
+     [style.top.px]="contextMenuY">
+  <!-- Add edit option here -->
+  <div class="context-menu-item" (click)="onEditFromContextMenu()">
+    <i class="fas fa-edit"></i>
+    <span>Edit Record</span>
+  </div>
+</div>
     
     <div class="favorites-controls">
       <div class="favorite-dropdown">
@@ -115,7 +126,8 @@
       [paginationPageSize]="20"
       (gridReady)="onGridReady($event)"
       (selectionChanged)="onSelectionChanged()"
-      (firstDataRendered)="onFirstDataRendered()">
+      (firstDataRendered)="onFirstDataRendered()"
+      (cellContextMenu)="onCellContextMenu($event)">
     </ag-grid-angular>
   </div>
 

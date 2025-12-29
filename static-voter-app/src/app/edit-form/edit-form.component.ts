@@ -127,7 +127,7 @@ export class EditFormComponent implements OnInit {
       
       // Update grid data and redirect
       setTimeout(() => {
-        this.updateGridAndNavigate(updatedRecord);
+       // this.updateGridAndNavigate(updatedRecord);
       }, 1500);
       
     } catch (error: any) {

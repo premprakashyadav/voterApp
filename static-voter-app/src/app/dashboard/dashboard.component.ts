@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ColDef, GridApi, GridReadyEvent, RowSelectedEvent, ModuleRegistry, AllCommunityModule, GridOptions } from 'ag-grid-community';
+import { ColDef, GridApi, GridReadyEvent, RowSelectedEvent, ModuleRegistry, AllCommunityModule, GridOptions, CellContextMenuEvent } from 'ag-grid-community';
 import { Voter, FavoriteList } from '../models/voter.model';
 import { themeQuartz } from 'ag-grid-community';
 import { VoterService } from '../services/voter.service';
@@ -47,6 +47,12 @@ export class DashboardComponent implements OnInit {
   newFavoriteName: string = '';
   isLoading: boolean = false;
   showCreateFavoriteModal: boolean = false;
+    // Context menu state
+  showContextMenu: boolean = false;
+  contextMenuX: number = 0;
+  contextMenuY: number = 0;
+  selectedRowData: any = null;
+  selectedRowId: string = '';
  private pb = new PocketBase('https://corporatorelectionnew.onrender.com');
   constructor(private voterService: VoterService, private spinner: NgxSpinnerService, private router: Router) {}
 
@@ -77,6 +83,39 @@ export class DashboardComponent implements OnInit {
     //     this.isLoading = false;
     //   }
     // });
+  }
+
+    onCellContextMenu(event: CellContextMenuEvent) {
+      debugger;
+    // Prevent default browser context menu
+    event?.event?.preventDefault();
+    
+    // Get the clicked row data
+    this.selectedRowData = event.data;
+    this.selectedRowId = event.data?.id || '';
+    
+    // Get click coordinates
+    const mouseEvent = event.event as MouseEvent;
+    this.contextMenuX = mouseEvent.clientX;
+    this.contextMenuY = mouseEvent.clientY;
+    
+    // Show context menu
+    this.showContextMenu = true;
+    
+    // Select the row
+    if(event?.node?.id) {
+      this.gridApi.getRowNode(event?.node?.id)?.setSelected(true);
+    }
+    
+    return false;
+  }
+
+    // 1. Edit from context menu
+  onEditFromContextMenu() {
+    if (this.selectedRowId) {
+      this.onEditClick({id: this.selectedRowId});
+    }
+    this.showContextMenu = false;
   }
 
   // Helper method to select a favorite
