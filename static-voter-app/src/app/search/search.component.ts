@@ -88,7 +88,9 @@ export class SearchComponent implements OnInit {
     const mobileNumber = this.mobileNumbers[voter.id];
     if (!mobileNumber) return;
     // Clean the mobile number (remove spaces, dashes, etc.)
-    const cleanNumber = mobileNumber.replace(/\D/g, '');
+    let cleanNumber;
+    cleanNumber = mobileNumber.toString();
+   // cleanNumber = mobileNumber.replace(/\D/g, '');
     const imageUrl = 'https://photos.app.goo.gl/UQAjr436EscrhTLo7';
     const message = `नमस्कार:
 यादी भाग क्र.: ${voter.yadibhag}
@@ -261,7 +263,9 @@ this.searchFamiliesDirect(query, field)
     const mobileNumber = this.mobileNumbers[voter.id];
     if (!mobileNumber) return;
     // Clean the mobile number (remove spaces, dashes, etc.)
-    const cleanNumber = mobileNumber.replace(/\D/g, '');
+    let cleanNumber;
+    cleanNumber = mobileNumber.toString();
+   // cleanNumber = mobileNumber.replace(/\D/g, '');
     const imageUrl = 'https://photos.app.goo.gl/UQAjr436EscrhTLo7';
     const message = `नमस्कार:
 यादी भाग क्र.: ${voter.yadibhag}
@@ -305,7 +309,7 @@ ${imageUrl}`;
 
   isWhatsAppEnabled(voterId: string): boolean {
     const number = this.mobileNumbers[voterId];
-    return !!number && number.trim().length >= 10;
+    return !!number && (number?.trim().length >= 10 || number.length >= 10);
   }
 
   clearSearch(): void {
