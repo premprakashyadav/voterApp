@@ -20,13 +20,15 @@ import { AuthService } from './services/auth.service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AccordionComponent, AccordionPanelComponent } from 'ngx-bootstrap/accordion';
 import { NgxSpinnerModule } from 'ngx-spinner';
+import { EditFormComponent } from './edit-form/edit-form.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     SearchComponent,
     DashboardComponent,
-    LoginComponent
+    LoginComponent,
+    EditFormComponent
   ],
   imports: [
     BrowserAnimationsModule,

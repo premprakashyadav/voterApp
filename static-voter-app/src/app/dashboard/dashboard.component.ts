@@ -7,6 +7,7 @@ import PocketBase from 'pocketbase';
 import { NgxSpinnerService } from 'ngx-spinner';
 import 'ag-grid-enterprise';
 import { AllEnterpriseModule } from 'ag-grid-enterprise';
+import { Router } from '@angular/router';
 
 // Register AG Grid modules
 ModuleRegistry.registerModules([AllEnterpriseModule]);
@@ -38,6 +39,8 @@ export class DashboardComponent implements OnInit {
   defaultColDef: ColDef = {
     resizable: true,
     filter: true,
+    flex: 1,
+    minWidth: 200,
     floatingFilter: true,
     sortable: true,
   };
@@ -45,7 +48,7 @@ export class DashboardComponent implements OnInit {
   isLoading: boolean = false;
   showCreateFavoriteModal: boolean = false;
  private pb = new PocketBase('https://corporatorelectionnew.onrender.com');
-  constructor(private voterService: VoterService, private spinner: NgxSpinnerService) {}
+  constructor(private voterService: VoterService, private spinner: NgxSpinnerService, private router: Router) {}
 
   ngOnInit(): void {
     this.columnDefs = this.getColumnDefs();
@@ -131,9 +134,9 @@ getFavoriteById(favoriteId: string): FavoriteList | undefined {
       }
      },
     { headerName: 'पूर्ण नाव', headerTooltip: 'पूर्ण नाव', field: 'name', filter: 'agTextColumnFilter', sortable: true, width: 250 },
-    { headerName: 'पूर्ण नाव (ENG)', headerTooltip: 'पूर्ण नाव (ENG)', field: 'fullName', filter: 'agTextColumnFilter', sortable: true, width: 250,
+    { headerName: 'पूर्ण नाव (ENG)', headerTooltip: 'पूर्ण नाव (ENG)', field: 'fullname', filter: 'agTextColumnFilter', sortable: true, width: 250,
        valueGetter: (params: any) => {
-        return params.data.esurname + ' ' + params.data.name_english + ' ' + params.data.relative_english;
+        return params.data.fullname;
       }
      },
     { headerName: 'पहिले नाव (MARATHI)', headerTooltip: 'पहिले नाव (MARATHI)', field: 'hname', filter: 'agTextColumnFilter', sortable: true, width: 250 },
@@ -141,11 +144,27 @@ getFavoriteById(favoriteId: string): FavoriteList | undefined {
     { headerName: 'आडनाव (MARATHI)', headerTooltip: 'आडनाव (MARATHI)', field: 'surname', filter: 'agTextColumnFilter', sortable: true, width: 250 },
     { headerName: 'आडनाव (ENG)', headerTooltip: 'आडनाव (ENG)', field: 'esurname', filter: 'agTextColumnFilter', sortable: true, width: 250 },
     { headerName: 'मतदान कार्ड', headerTooltip: 'मतदान कार्ड', field: 'cardno', filter: 'agTextColumnFilter', sortable: true, width: 250 },
-    { headerName: 'मोबाइल', headerTooltip: 'मोबाइल', field: 'Mobile', filter: 'agTextColumnFilter', sortable: true, width: 150 },
+    { headerName: 'मोबाइल', headerTooltip: 'मोबाइल', field: 'pd_receiving_date_no_1', filter: 'agTextColumnFilter', sortable: true, width: 150 },
     { headerName: 'मतदान केंद्र', headerTooltip: 'मतदान केंद्र', field: 'address', filter: 'agTextColumnFilter', sortable: true, width: 300 },
     { headerName: 'वय', headerTooltip: 'वय', field: 'age', filter: 'agTextColumnFilter', sortable: true, width: 100 },
     { headerName: 'लिंग', headerTooltip: 'लिंग', field: 'sex', filter: 'agTextColumnFilter', sortable: true, width: 100 },
-    { headerName: 'पत्ता', headerTooltip: 'पत्ता', field: 'addressN', filter: 'agTextColumnFilter', sortable: true, width: 200 },
+    { headerName: 'खोली/फ्लॅट क्रमांक', headerTooltip: 'खोली/फ्लॅट क्रमांक', field: 'RoomFlat_No', filter: 'agTextColumnFilter', sortable: true, width: 200 },
+    { headerName: 'विंग', headerTooltip: 'विंग', field: 'Wing', filter: 'agTextColumnFilter', sortable: true, width: 200 },
+    { headerName: 'अपार्टमेंट/इमारत/चाळीचे नाव', headerTooltip: 'अपार्टमेंट/इमारत/चाळीचे नाव', field: 'Apartment_Building_Chawl_Name', filter: 'agTextColumnFilter', sortable: true, width: 200 },
+    { headerName: 'क्षेत्र', headerTooltip: 'क्षेत्र', field: 'Area', filter: 'agTextColumnFilter', sortable: true, width: 200 },
+    { headerName: 'लँडमार्क', headerTooltip: 'लँडमार्क', field: 'Landmark', filter: 'agTextColumnFilter', sortable: true, width: 200 },
+    { headerName: 'स्टेशन शहर', headerTooltip: 'स्टेशन शहर', field: 'Station_City', filter: 'agTextColumnFilter', sortable: true, width: 200 },
+        {
+      field: 'UpdateRecord',
+      headerName: 'Update Record',
+      width: 100,
+      cellRenderer: this.actionCellRenderer.bind(this),
+      cellRendererParams: {
+        onClick: this.onEditClick.bind(this)
+      },
+      filter: false,
+      sortable: false
+    },
     // Add remove action column only when viewing a favorite
     ...(isFavoriteSelected ? [{
       headerName: 'Actions',
@@ -165,6 +184,27 @@ getFavoriteById(favoriteId: string): FavoriteList | undefined {
     }] : [])
   ];
 }
+
+// action-cell-renderer.component.ts (or inline function)
+actionCellRenderer(params: any) {
+  const button = document.createElement('button');
+  button.innerText = 'Edit';
+  button.classList.add('btn', 'btn-sm', 'btn-primary');
+
+  // attach click handler
+  button.addEventListener('click', () => {
+    if (params.onClick) {
+      params.onClick(params.data); // pass row data
+    }
+  });
+
+  return button;
+}
+
+
+    onEditClick(params: any) {
+    this.router.navigate(['/edit', params.id]);
+  }
 
 // Add this method to handle remove from grid
 removeVoterFromGrid(voterId: string): void {

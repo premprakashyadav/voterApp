@@ -84,7 +84,7 @@
               <input 
                 type="tel" 
                 placeholder="Enter mobile number"
-                [value]="mobileNumbers[voter.id] || voter.Mobile"
+                [value]="mobileNumbers[voter.id] || voter.pd_receiving_date_no_1"
                 (input)="onMobileNumberChange(voter.id, $any($event.target).value)"
                 class="form-control">
                  <button 

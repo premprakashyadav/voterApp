@@ -50,7 +50,8 @@ export interface Voter {
   lon: string;
   gaddress: string;
   addressN: string;
-  Mobile: string;
+  pd_receiving_date_no_1: string;
+  fullName: string;
 }
 
 export interface FavoriteList {

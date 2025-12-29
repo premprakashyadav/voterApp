@@ -1,0 +1,195 @@
+<div class="edit-form-container">
+  <!-- Spinner for loading data -->
+  <ngx-spinner 
+    name="loadSpinner" 
+    type="ball-scale-multiple" 
+    size="medium"
+    bdColor="rgba(51,51,51,0.8)" 
+    color="#fff">
+    <p style="color: white; margin-top: 20px;">
+      Loading record data...
+    </p>
+  </ngx-spinner>
+
+  <!-- Spinner for saving -->
+  <ngx-spinner 
+    name="saveSpinner" 
+    type="ball-scale-multiple" 
+    size="medium"
+    bdColor="rgba(51,51,51,0.8)" 
+    color="#fff">
+    <p style="color: white; margin-top: 20px; font-size: 1.1rem;">
+      Saving changes...
+    </p>
+  </ngx-spinner>
+
+  <!-- Form Header -->
+  <div class="form-header">
+    <h2>
+      <i class="fas fa-user-edit"></i>
+      Edit Record - {{ recordId ? 'ID: ' + recordId : '' }}
+    </h2>
+    <button class="btn btn-secondary" (click)="onCancel()" [disabled]="isSaving">
+      <i class="fas fa-times"></i> Cancel
+    </button>
+  </div>
+
+  <!-- Edit Form -->
+  <form [formGroup]="editForm" (ngSubmit)="onSubmit()" class="edit-form">
+    
+    <!-- Personal Information Section -->
+    <div class="form-section">
+      <h4>
+        <i class="fas fa-user"></i>
+        Personal Information
+      </h4>
+      
+      <div class="row">
+        <div class="col-md-3">
+          <div class="form-group">
+            <label class="required">Name</label>
+            <input type="text" class="form-control" formControlName="name" 
+                   [class.is-invalid]="isFieldInvalid('name')"
+                   placeholder="Enter full name">
+            <div *ngIf="isFieldInvalid('name')" class="text-danger">
+              <i class="fas fa-exclamation-circle"></i> {{ getFieldError('name') }}
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-3">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" class="form-control" formControlName="fullname"
+                   placeholder="Complete name with title">
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="form-group">
+            <label>Father/Husband Name</label>
+            <input type="text" class="form-control" formControlName="hname"
+                   placeholder="Parent/Spouse name">
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="form-group">
+            <label>Name in English</label>
+            <input type="text" class="form-control" formControlName="name_english"
+                   placeholder="English version of name">
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-3">
+          <div class="form-group">
+            <label>Surname</label>
+            <input type="text" class="form-control" formControlName="surname"
+                   placeholder="Family name">
+          </div>
+        </div>
+        
+        <div class="col-md-3">
+          <div class="form-group">
+            <label>English Surname</label>
+            <input type="text" class="form-control" formControlName="esurname"
+                   placeholder="Surname in English">
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="form-group">
+            <label>Mobile</label>
+            <input type="number" class="form-control" formControlName="pd_receiving_date_no_1"
+                   placeholder="Mobile Number"
+                   min="0">
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="form-group">
+            <label>PD Receiving Date Address</label>
+            <input type="text" class="form-control" formControlName="pd_receiving_date_address"
+                   placeholder="Address for PD">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Address Information Section -->
+    <div class="form-section">
+      <h4>
+        <i class="fas fa-home"></i>
+        Address Details
+      </h4>
+      
+      <div class="row">
+        <div class="col-md-3">
+          <div class="form-group">
+            <label>Room/Flat No</label>
+            <input type="text" class="form-control" formControlName="RoomFlat_No"
+                   placeholder="Flat/Room number">
+          </div>
+        </div>
+        
+        <div class="col-md-3">
+          <div class="form-group">
+            <label>Wing</label>
+            <input type="text" class="form-control" formControlName="Wing"
+                   placeholder="Building wing">
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="form-group">
+            <label>Apartment/Building/Chawl Name</label>
+            <input type="text" class="form-control" formControlName="Apartment_Building_Chawl_Name"
+                   placeholder="Building or society name">
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="form-group">
+            <label>Area</label>
+            <input type="text" class="form-control" formControlName="Area"
+                   placeholder="Locality/Area">
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label>Landmark</label>
+            <input type="text" class="form-control" formControlName="Landmark"
+                   placeholder="Nearby landmark">
+          </div>
+        </div>
+        
+        <div class="col-md-6">
+          <div class="form-group">
+            <label>Station/City</label>
+            <input type="text" class="form-control" formControlName="Station_City"
+                   placeholder="City or station area">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary" [disabled]="editForm.invalid || isSaving">
+        <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-2"></span>
+        <i *ngIf="!isSaving" class="fas fa-save me-2"></i>
+        {{ isSaving ? 'Saving...' : 'Save Changes' }}
+      </button>
+      
+      <button type="button" class="btn btn-outline-secondary" (click)="onCancel()" [disabled]="isSaving">
+        <i class="fas fa-times me-2"></i>
+        Cancel
+      </button>
+    </div>
+  </form>
+</div>

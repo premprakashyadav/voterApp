@@ -62,11 +62,10 @@ export class SearchComponent implements OnInit {
     // Enhanced browser detection
     this.detectBrowserAndCapabilities();
   }
-  
 
   onClick(voter: any): void {
     if (!voter.id) return;
-  //  if (this.disabled || this.loading) return;
+    //  if (this.disabled || this.loading) return;
 
     const isMobile = this.isMobileDevice();
 
@@ -134,145 +133,118 @@ ${imageUrl}`;
     }
   }
 
-async searchFamiliesDirect(query: string, field: string): Promise<any> {
-    const searchableFields = [
-      'name',
-      'hname',
-      'esurname',
-      'surname',
-      'name_english',
-      'Mobile',
-      'cardno',
-    ];
+async searchFamiliesDirect(query: string, field: string): Promise<Record<string, any[]>> {
+  const searchableFields = [
+    'name',
+    'hname',
+    'esurname',
+    'surname',
+    'name_english',
+    'Mobile',
+    'cardno',
+  ];
 
-    // Helper function to safely build filter conditions
-   const escapeRegex = (value: string) =>
-  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const escapeRegex = (value: string) =>
+    value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-const buildCondition = (fieldName: string, value: string) => {
-  const escaped = escapeRegex(value).replace(/"/g, '\\"');
-  return `${fieldName} ~ "${escaped}"`;
-};
+  const buildCondition = (fieldName: string, value: string) => {
+    const escaped = escapeRegex(value).replace(/"/g, '\\"');
+    return `${fieldName} ~ "${escaped}"`;
+  };
 
-    let searchConditions = '';
-
-    switch (field) {
-      case 'firstname':
-        searchConditions = `${buildCondition('name',query)} || ${buildCondition('hname',query)} || ${buildCondition('name_english', query)}`;;
-        break;
-      case 'lastName':
-       searchConditions = `${buildCondition('surname',query)} || ${buildCondition('esurname', query)}`;
-        break;
-      case 'voterId':
-        searchConditions = buildCondition('cardno', query);
-        break;
-      default:
-        searchConditions = searchableFields
-          .map((fieldName) => buildCondition(fieldName, query))
-          .join(' || ');
-    }
-
-    const familyFilter = `(${searchConditions}) && familyqty >= 1`;
-
-    try {
-      const matchingRecords = await this.pb
-        .collection('corporatorElectionData')
-        .getFullList({
-          filter: familyFilter,
-          fields: 'familycode',
-        });
-
-      const familyCodes = [
-        ...new Set(matchingRecords.map((r: any) => r.familycode)),
-      ];
-
-      if (familyCodes.length === 0) return [];
-
-      const familyCodeFilter = familyCodes
-        .map((code) => `familycode = "${code.replace(/"/g, '\\"')}"`)
+  let searchConditions = '';
+  switch (field) {
+    case 'firstname':
+    case 'lastName':
+      searchConditions = [
+        buildCondition('name', query),
+        buildCondition('hname', query),
+        buildCondition('fullname', query),
+      ].join(' || ');
+      break;
+    case 'voterId':
+      searchConditions = buildCondition('cardno', query);
+      break;
+    default:
+      searchConditions = searchableFields
+        .map((f) => buildCondition(f, query))
         .join(' || ');
+  }
 
-      const allFamilyMembers = await this.pb
-        .collection('corporatorElectionData')
-        .getFullList({
-          filter: familyCodeFilter,
-          sort: 'familycode, name',
-        });
-
-      return allFamilyMembers;
-    } catch (error: any) {
-      console.error('Search error details:', {
-        message: error.message,
-        status: error.status,
-        data: error.data,
-        filter: familyFilter,
+  try {
+    // Fetch all matching members with familyqty >= 1
+    const allMatchingMembers = await this.pb
+      .collection('corporatorElectionData')
+      .getFullList({
+        filter: `(${searchConditions}) && familyqty >= 1`,
+        sort: 'familycode, name',
       });
-      throw error;
-    }
+
+    // Group by familycode
+    const groupedByFamily: Record<string, any[]> = {};
+    allMatchingMembers.forEach((member: any) => {
+      const code = member.familycode.toString();
+      if (!groupedByFamily[code]) groupedByFamily[code] = [];
+      groupedByFamily[code].push(member);
+    });
+
+    return groupedByFamily;
+  } catch (error: any) {
+    console.error('Search error details:', {
+      message: error.message,
+      status: error.status,
+      data: error.data,
+    });
+    throw error;
   }
+}
 
 
-  onSearch(): void {
-    if (this.firstname) {
-      this.lastname = '';
-      this.voterId = '';
-      this.spinner.show();
-      this.searchFamiliesDirect(this.firstname, 'firstname')
-        .then((results) => {
-          this.searchResults = results;
-          this.isSearched = results.length === 0;
-          this.spinner.hide();
-        })
-        .catch((error) => {
-          console.error('Search error:', error);
-          this.isSearched = true;
-          this.searchResults = [];
-          this.spinner.hide();
-        });
-    } else if (this.lastname) {
-      this.firstname = '';
-      this.voterId = '';
-      this.spinner.show();
-      this.searchFamiliesDirect(this.lastname, 'lastName')
-        .then((results) => {
-          this.searchResults = results;
-          this.isSearched = results.length === 0;
-          this.spinner.hide();
-        })
-        .catch((error) => {
-          console.error('Search error:', error);
-          this.isSearched = true;
-          this.searchResults = [];
-          this.spinner.hide();
-        });
-    } else if (this.voterId) {
-      this.firstname = '';
-      this.lastname = '';
-      this.spinner.show();
-      this.searchFamiliesDirect(this.voterId, 'voterId')
-        .then((results) => {
-          this.searchResults = results;
-          this.isSearched = results.length === 0;
-          this.spinner.hide();
-        })
-        .catch((error) => {
-          console.error('Search error:', error);
-          this.isSearched = true;
-          this.searchResults = [];
-          this.spinner.hide();
-        });
-    } else {
-      this.isSearched = true;
-      this.searchResults = [];
-    }
+
+onSearch(): void {
+  const query = this.firstname || this.lastname || this.voterId;
+  let field: 'firstname' | 'lastName' | 'voterId' | null = null;
+
+  if (this.firstname) field = 'firstname';
+  else if (this.lastname) field = 'lastName';
+  else if (this.voterId) field = 'voterId';
+
+  // Reset other input fields
+  this.firstname = field === 'firstname' ? this.firstname : '';
+  this.lastname = field === 'lastName' ? this.lastname : '';
+  this.voterId = field === 'voterId' ? this.voterId : '';
+
+  if (!query || !field) {
+    this.isSearched = true;
+    this.searchResults = [];
+    return;
   }
+
+  this.spinner.show();
+
+this.searchFamiliesDirect(query, field)
+  .then((resultsGrouped) => {
+    // Flatten all members into a single array
+    this.searchResults = Object.values(resultsGrouped).flat();
+    this.isSearched = this.searchResults.length === 0;
+    this.spinner.hide();
+  })
+  .catch((error) => {
+    console.error('Search error:', error);
+    this.searchResults = [];
+    this.isSearched = true;
+    this.spinner.hide();
+  });
+
+}
+
 
   onMobileNumberChange(voterId: string, number: string): void {
     this.mobileNumbers[voterId] = number;
   }
 
   shareAllOnWhatsApp(voter: Voter): void {
-    this.onMobileNumberChange(voter.id, voter.Mobile);
+    this.onMobileNumberChange(voter.id, voter.pd_receiving_date_no_1);
     // let sameFamilyData = this.searchResults.filter(
     //   (v) => v.familycode === voter.familycode
     // );
@@ -285,7 +257,7 @@ const buildCondition = (fieldName: string, value: string) => {
   }
 
   shareOnCommon(voter: Voter, type: string): void {
-    this.onMobileNumberChange(voter.id, voter.Mobile);
+    this.onMobileNumberChange(voter.id, voter.pd_receiving_date_no_1);
     const mobileNumber = this.mobileNumbers[voter.id];
     if (!mobileNumber) return;
     // Clean the mobile number (remove spaces, dashes, etc.)
@@ -541,7 +513,7 @@ ${imageUrl}`;
   // Open WhatsApp with pre-filled message
   private openWhatsAppWithMessage(message: string): void {
     // Encode the message for URL
-   // const encodedMessage = encodeURIComponent(message);
+    // const encodedMessage = encodeURIComponent(message);
 
     // WhatsApp API URL without phone number
     const whatsappUrl = `https://wa.me/?text=${message}`;
