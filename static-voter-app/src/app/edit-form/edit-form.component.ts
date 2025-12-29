@@ -171,7 +171,7 @@ export class EditFormComponent implements OnInit {
   private showMessage(message: string, type: 'success' | 'error' | 'info' = 'info') {
     // Create and show toast message
     const toast = document.createElement('div');
-    toast.className = `toast-message ${type}`;
+    toast.className = `toaster-parent toast-message ${type}`;
     toast.innerHTML = `
       <div class="toast-content">
         <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
@@ -187,7 +187,7 @@ export class EditFormComponent implements OnInit {
     setTimeout(() => {
       toast.classList.remove('show');
       setTimeout(() => {
-        document.body.removeChild(toast);
+      document.body.removeChild(toast);
       }, 300);
     }, 3000);
   }

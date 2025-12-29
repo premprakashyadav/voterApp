@@ -47,12 +47,6 @@ export class DashboardComponent implements OnInit {
   newFavoriteName: string = '';
   isLoading: boolean = false;
   showCreateFavoriteModal: boolean = false;
-    // Context menu state
-  showContextMenu: boolean = false;
-  contextMenuX: number = 0;
-  contextMenuY: number = 0;
-  selectedRowData: any = null;
-  selectedRowId: string = '';
  private pb = new PocketBase('https://corporatorelectionnew.onrender.com');
   constructor(private voterService: VoterService, private spinner: NgxSpinnerService, private router: Router) {}
 
@@ -83,39 +77,6 @@ export class DashboardComponent implements OnInit {
     //     this.isLoading = false;
     //   }
     // });
-  }
-
-    onCellContextMenu(event: CellContextMenuEvent) {
-      debugger;
-    // Prevent default browser context menu
-    event?.event?.preventDefault();
-    
-    // Get the clicked row data
-    this.selectedRowData = event.data;
-    this.selectedRowId = event.data?.id || '';
-    
-    // Get click coordinates
-    const mouseEvent = event.event as MouseEvent;
-    this.contextMenuX = mouseEvent.clientX;
-    this.contextMenuY = mouseEvent.clientY;
-    
-    // Show context menu
-    this.showContextMenu = true;
-    
-    // Select the row
-    if(event?.node?.id) {
-      this.gridApi.getRowNode(event?.node?.id)?.setSelected(true);
-    }
-    
-    return false;
-  }
-
-    // 1. Edit from context menu
-  onEditFromContextMenu() {
-    if (this.selectedRowId) {
-      this.onEditClick({id: this.selectedRowId});
-    }
-    this.showContextMenu = false;
   }
 
   // Helper method to select a favorite
@@ -201,6 +162,7 @@ getFavoriteById(favoriteId: string): FavoriteList | undefined {
       cellRendererParams: {
         onClick: this.onEditClick.bind(this)
       },
+      pinned: 'right',
       filter: false,
       sortable: false
     },
@@ -225,23 +187,39 @@ getFavoriteById(favoriteId: string): FavoriteList | undefined {
 }
 
 // action-cell-renderer.component.ts (or inline function)
+// actionCellRenderer(params: any) {
+//   const button = document.createElement('button');
+//   button.innerText = 'Edit';
+//   button.classList.add('btn', 'btn-sm', 'btn-primary');
+
+//   // attach click handler
+//   button.addEventListener('click', () => {
+//     if (params.onClick) {
+//       params.onClick(params.data); // pass row data
+//     }
+//   });
+
+//   return button;
+// }
+
 actionCellRenderer(params: any) {
-  const button = document.createElement('button');
-  button.innerText = 'Edit';
-  button.classList.add('btn', 'btn-sm', 'btn-primary');
-
-  // attach click handler
-  button.addEventListener('click', () => {
-    if (params.onClick) {
-      params.onClick(params.data); // pass row data
-    }
-  });
-
-  return button;
+  const div = document.createElement('div');
+  div.className = 'action-buttons';
+  
+  // Simple direct link
+  const link = document.createElement('a');
+  link.href = `/#/edit/${params.data.id}`;
+  link.target = '_blank';
+  link.className = 'btn btn-sm btn-primary';
+  link.innerHTML = '<i class="fas fa-edit"></i> Edit';
+  
+  div.appendChild(link);
+  return div;
 }
 
 
     onEditClick(params: any) {
+      //http://localhost:4200/#/edit/2q8jvwnn79em57s
     this.router.navigate(['/edit', params.id]);
   }
 

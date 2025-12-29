@@ -30,3 +30,14 @@ body {
   --ag-row-height: 40px;
 }
 
+.toaster-parent {
+position: fixed;
+    top: 20px;
+    z-index: 1050;
+    padding: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+

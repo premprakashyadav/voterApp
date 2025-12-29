@@ -21,6 +21,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AccordionComponent, AccordionPanelComponent } from 'ngx-bootstrap/accordion';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { EditFormComponent } from './edit-form/edit-form.component';
+import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -45,6 +46,7 @@ import { EditFormComponent } from './edit-form/edit-form.component';
   providers: [
    // AuthService,
     //AuthGuard 
+     { provide: LocationStrategy, useClass: HashLocationStrategy }
     ],
   bootstrap: [AppComponent]
 })
