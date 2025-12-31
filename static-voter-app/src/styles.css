@@ -46,6 +46,6 @@ position: fixed;
 }
 
 .ag-theme-alpine.ag-popup .ag-menu.ag-popup-child.ag-column-menu .ag-menu-list .ag-menu-separator + .ag-menu-option {
-  display: block!important;
+  display: table-row!important;
 }
 
