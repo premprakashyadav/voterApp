@@ -41,7 +41,7 @@ position: fixed;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.ag-menu-list .ag-menu-separator + .ag-menu-option {
+.ag-theme-alpine.ag-popup .ag-menu.ag-popup-child .ag-menu-list .ag-menu-separator + .ag-menu-option {
   display: none!important;
 }
 
