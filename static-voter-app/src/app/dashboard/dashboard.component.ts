@@ -1,5 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { ColDef, GridApi, GridReadyEvent, RowSelectedEvent, ModuleRegistry, AllCommunityModule, GridOptions, CellContextMenuEvent } from 'ag-grid-community';
+import {
+  ColDef,
+  GridApi,
+  GridReadyEvent,
+  RowSelectedEvent,
+  ModuleRegistry,
+  AllCommunityModule,
+  GridOptions,
+  CellContextMenuEvent,
+} from 'ag-grid-community';
 import { Voter, FavoriteList } from '../models/voter.model';
 import { themeQuartz } from 'ag-grid-community';
 import { VoterService } from '../services/voter.service';
@@ -15,16 +24,16 @@ ModuleRegistry.registerModules([AllEnterpriseModule]);
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css']
+  styleUrls: ['./dashboard.component.css'],
 })
 export class DashboardComponent implements OnInit {
   private gridApi!: GridApi;
   rowData: any[] = [];
   selectedRows: Voter[] = [];
-  
+
   // Add theme property
   themeClass: any = themeQuartz;
-  
+
   favorites: any[] = [];
   selectedFavorite: string = 'all';
   isEditingFavorite: { [key: string]: boolean } = {};
@@ -47,8 +56,12 @@ export class DashboardComponent implements OnInit {
   newFavoriteName: string = '';
   isLoading: boolean = false;
   showCreateFavoriteModal: boolean = false;
- private pb = new PocketBase('https://corporatorelectionnew.onrender.com');
-  constructor(private voterService: VoterService, private spinner: NgxSpinnerService, private router: Router) {}
+  private pb = new PocketBase('https://corporatorelectionnew.onrender.com');
+  constructor(
+    private voterService: VoterService,
+    private spinner: NgxSpinnerService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.columnDefs = this.getColumnDefs();
@@ -56,17 +69,17 @@ export class DashboardComponent implements OnInit {
     this.loadFavorites();
   }
 
-   async loadData(): Promise<void> {
+  async loadData(): Promise<void> {
     this.spinner.show();
     let records = [];
     records = await this.pb.collection('corporatorElectionData').getFullList();
-    if(records.length > 0){
+    if (records.length > 0) {
       this.rowData = records;
       this.spinner.hide();
     } else {
       this.spinner.hide();
     }
-    
+
     // this.voterService.loadVotersData().subscribe({
     //   next: (data: any[]) => {
     //     this.rowData = data;
@@ -80,153 +93,387 @@ export class DashboardComponent implements OnInit {
   }
 
   // Helper method to select a favorite
-selectFavorite(favoriteId: string): void {
-  this.selectedFavorite = favoriteId;
-  this.onFavoriteChange();
-}
+  selectFavorite(favoriteId: string): void {
+    this.selectedFavorite = favoriteId;
+    this.onFavoriteChange();
+  }
 
-// Helper method to get favorite by ID
-getFavoriteById(favoriteId: string): FavoriteList | undefined {
-  return this.voterService.getFavoriteById(favoriteId);
-}
+  // Helper method to get favorite by ID
+  getFavoriteById(favoriteId: string): FavoriteList | undefined {
+    return this.voterService.getFavoriteById(favoriteId);
+  }
   onGridReady(params: GridReadyEvent): void {
     this.gridApi = params.api;
     // Auto-size columns to fit content
-   // params.api.sizeColumnsToFit();
+    // params.api.sizeColumnsToFit();
   }
 
   resetAllFilters() {
-  this.gridApi.setFilterModel(null);
-  this.gridApi.onFilterChanged();
-}
+    this.gridApi.setFilterModel(null);
+    this.gridApi.onFilterChanged();
+  }
 
   getColumnDefs(): ColDef[] {
-  const isFavoriteSelected = this.selectedFavorite && this.selectedFavorite !== 'all';
-  
-  return [
-    { 
-      headerName: '', 
-      field: 'selected', 
-      checkboxSelection: true, 
-      headerCheckboxSelection: true,
-      width: 80,
-      filter: false,
-      sortable: false
-    },
-    { headerName: 'यादी क्र.', headerTooltip: 'यादी भाग क्र.', field: 'yadibhag', filter: 'agNumberColumnFilter', sortable: true, width: 180 },
-    { headerName: 'वॉर्ड क्र.', headerTooltip: 'वॉर्ड / कॉलेज /विभाग क्रमांक', field: 'constno', filter: 'agNumberColumnFilter', sortable: true, width: 180 },
-    { headerName: 'अ. क्र.', headerTooltip: 'अ. क्र.', field: 'vno', filter: 'agNumberColumnFilter', sortable: true, width: 180 },
-    { headerName: 'वि. क्र.', headerTooltip: 'विधानसभा निर्वाचन क्षेत्र संख्या', field: 'booth', filter: 'agTextColumnFilter', sortable: true,width: 200,
-      valueGetter: (params: any) => {
-        return params.data.booth.split('/')[0];
-      }
-     },
-    { headerName: 'अ. क्र. भागात', headerTooltip: 'अनुक्रमांक भागात', field: 'booth', filter: 'agTextColumnFilter', sortable: true,
-      width: 250,
-            valueGetter: (params: any) => {
-        return params.data.booth.split('/')[2];
-      }
-     },
-    { headerName: 'भाग क्र.', headerTooltip: 'भाग क्रमांक', field: 'booth', filter: 'agTextColumnFilter', sortable: true,
-      width: 180,
-            valueGetter: (params: any) => {
-        return params.data.booth.split('/')[1];
-      }
-     },
-    { headerName: 'पूर्ण नाव', headerTooltip: 'पूर्ण नाव', field: 'name', filter: 'agTextColumnFilter', sortable: true, width: 250 },
-    { headerName: 'पूर्ण नाव (ENG)', headerTooltip: 'पूर्ण नाव (ENG)', field: 'fullname', filter: 'agTextColumnFilter', sortable: true, width: 250,
-       valueGetter: (params: any) => {
-        return params.data.fullname;
-      }
-     },
-    { headerName: 'पहिले नाव (MARATHI)', headerTooltip: 'पहिले नाव (MARATHI)', field: 'hname', filter: 'agTextColumnFilter', sortable: true, width: 250 },
-    { headerName: 'पहिले नाव (ENG)', headerTooltip: 'पहिले नाव (ENG)', field: 'name_english', filter: 'agTextColumnFilter', sortable: true, width: 250 },
-    { headerName: 'आडनाव (MARATHI)', headerTooltip: 'आडनाव (MARATHI)', field: 'surname', filter: 'agTextColumnFilter', sortable: true, width: 250 },
-    { headerName: 'आडनाव (ENG)', headerTooltip: 'आडनाव (ENG)', field: 'esurname', filter: 'agTextColumnFilter', sortable: true, width: 250 },
-    { headerName: 'मतदान कार्ड', headerTooltip: 'मतदान कार्ड', field: 'cardno', filter: 'agTextColumnFilter', sortable: true, width: 250 },
-    { headerName: 'मोबाइल', headerTooltip: 'मोबाइल', field: 'pd_receiving_date_no_1', filter: 'agTextColumnFilter', sortable: true, width: 150 },
-    { headerName: 'मतदान केंद्र', headerTooltip: 'मतदान केंद्र', field: 'address', filter: 'agTextColumnFilter', sortable: true, width: 300 },
-    { headerName: 'वय', headerTooltip: 'वय', field: 'age', filter: 'agTextColumnFilter', sortable: true, width: 100 },
-    { headerName: 'लिंग', headerTooltip: 'लिंग', field: 'sex', filter: 'agTextColumnFilter', sortable: true, width: 100 },
-    { headerName: 'खोली/फ्लॅट क्रमांक', headerTooltip: 'खोली/फ्लॅट क्रमांक', field: 'RoomFlat_No', filter: 'agTextColumnFilter', sortable: true, width: 200 },
-    { headerName: 'विंग', headerTooltip: 'विंग', field: 'Wing', filter: 'agTextColumnFilter', sortable: true, width: 200 },
-    { headerName: 'अपार्टमेंट/इमारत/चाळीचे नाव', headerTooltip: 'अपार्टमेंट/इमारत/चाळीचे नाव', field: 'Apartment_Building_Chawl_Name', filter: 'agTextColumnFilter', sortable: true, width: 200 },
-    { headerName: 'क्षेत्र', headerTooltip: 'क्षेत्र', field: 'Area', filter: 'agTextColumnFilter', sortable: true, width: 200 },
-    { headerName: 'लँडमार्क', headerTooltip: 'लँडमार्क', field: 'Landmark', filter: 'agTextColumnFilter', sortable: true, width: 200 },
-    { headerName: 'स्टेशन शहर', headerTooltip: 'स्टेशन शहर', field: 'Station_City', filter: 'agTextColumnFilter', sortable: true, width: 200 },
-        {
-      field: 'UpdateRecord',
-      headerName: 'Update Record',
-      width: 100,
-      cellRenderer: this.actionCellRenderer.bind(this),
-      cellRendererParams: {
-        onClick: this.onEditClick.bind(this)
+    const isFavoriteSelected =
+      this.selectedFavorite && this.selectedFavorite !== 'all';
+
+    return [
+      {
+        headerName: '',
+        field: 'selected',
+        checkboxSelection: true,
+        headerCheckboxSelection: true,
+        width: 80,
+        filter: false,
+        sortable: false,
       },
-      pinned: 'right',
-      filter: false,
-      sortable: false
-    },
-    // Add remove action column only when viewing a favorite
-    ...(isFavoriteSelected ? [{
-      headerName: 'Actions',
-      field: 'actions',
-      width: 100,
-      filter: false,
-      sortable: false,
-      cellRenderer: (params: any) => {
-        return `
+      {
+        headerName: 'यादी क्र.',
+        headerTooltip: 'यादी भाग क्र.',
+        field: 'yadibhag',
+        filter: 'agNumberColumnFilter',
+        sortable: true,
+        width: 180,
+      },
+      {
+        headerName: 'वॉर्ड क्र.',
+        headerTooltip: 'वॉर्ड / कॉलेज /विभाग क्रमांक',
+        field: 'constno',
+        filter: 'agNumberColumnFilter',
+        sortable: true,
+        width: 180,
+      },
+      {
+        headerName: 'अ. क्र.',
+        headerTooltip: 'अ. क्र.',
+        field: 'vno',
+        filter: 'agNumberColumnFilter',
+        sortable: true,
+        width: 180,
+      },
+      {
+        headerName: 'वि. क्र.',
+        headerTooltip: 'विधानसभा निर्वाचन क्षेत्र संख्या',
+        field: 'booth',
+        filter: 'agTextColumnFilter',
+        sortable: true,
+        width: 200,
+        valueGetter: (params: any) => {
+          return params.data.booth.split('/')[0];
+        },
+      },
+      {
+        headerName: 'अ. क्र. भागात',
+        headerTooltip: 'अनुक्रमांक भागात',
+        field: 'booth',
+        filter: 'agTextColumnFilter',
+        sortable: true,
+        width: 250,
+        valueGetter: (params: any) => {
+          return params.data.booth.split('/')[2];
+        },
+      },
+      {
+        headerName: 'भाग क्र.',
+        headerTooltip: 'भाग क्रमांक',
+        field: 'booth',
+        filter: 'agTextColumnFilter',
+        sortable: true,
+        width: 180,
+        valueGetter: (params: any) => {
+          return params.data.booth.split('/')[1];
+        },
+      },
+      {
+        headerName: 'पूर्ण नाव',
+        headerTooltip: 'पूर्ण नाव',
+        field: 'name',
+        filter: 'agTextColumnFilter',
+        sortable: true,
+        width: 250,
+      },
+      {
+        headerName: 'पूर्ण नाव (ENG)',
+        headerTooltip: 'पूर्ण नाव (ENG)',
+        field: 'fullname',
+        filter: 'agTextColumnFilter',
+        sortable: true,
+        width: 250,
+        valueGetter: (params: any) => {
+          return params.data.fullname;
+        },
+      },
+      {
+        headerName: 'पहिले नाव (MARATHI)',
+        headerTooltip: 'पहिले नाव (MARATHI)',
+        field: 'hname',
+        filter: 'agTextColumnFilter',
+        sortable: true,
+        width: 250,
+      },
+      {
+        headerName: 'पहिले नाव (ENG)',
+        headerTooltip: 'पहिले नाव (ENG)',
+        field: 'name_english',
+        filter: 'agTextColumnFilter',
+        sortable: true,
+        width: 250,
+      },
+      {
+        headerName: 'आडनाव (MARATHI)',
+        headerTooltip: 'आडनाव (MARATHI)',
+        field: 'surname',
+        filter: 'agTextColumnFilter',
+        sortable: true,
+        width: 250,
+      },
+      {
+        headerName: 'आडनाव (ENG)',
+        headerTooltip: 'आडनाव (ENG)',
+        field: 'esurname',
+        filter: 'agTextColumnFilter',
+        sortable: true,
+        width: 250,
+      },
+      {
+        headerName: 'मतदान कार्ड',
+        headerTooltip: 'मतदान कार्ड',
+        field: 'cardno',
+        filter: 'agTextColumnFilter',
+        sortable: true,
+        width: 250,
+      },
+      {
+        headerName: 'मोबाइल',
+        headerTooltip: 'मोबाइल',
+        field: 'pd_receiving_date_no_1',
+        filter: 'agTextColumnFilter',
+        sortable: true,
+        width: 150,
+      },
+            {
+        headerName: 'PD Address',
+        headerTooltip: 'PD Address',
+        field: 'pd_receiving_date_address',
+        filter: 'agTextColumnFilter',
+        sortable: true,
+        hide: true,
+        width: 150,
+      },
+      {
+        headerName: 'मतदान केंद्र',
+        headerTooltip: 'मतदान केंद्र',
+        field: 'address',
+        filter: 'agTextColumnFilter',
+        sortable: true,
+        width: 300,
+      },
+      {
+        headerName: 'वय',
+        headerTooltip: 'वय',
+        field: 'age',
+        filter: 'agTextColumnFilter',
+        sortable: true,
+        width: 100,
+      },
+      {
+        headerName: 'लिंग',
+        headerTooltip: 'लिंग',
+        field: 'sex',
+        filter: 'agTextColumnFilter',
+        sortable: true,
+        width: 100,
+      },
+      {
+        headerName: 'खोली/फ्लॅट क्रमांक',
+        headerTooltip: 'खोली/फ्लॅट क्रमांक',
+        field: 'RoomFlat_No',
+        filter: 'agTextColumnFilter',
+        sortable: true,
+        width: 200,
+      },
+      {
+        headerName: 'विंग',
+        headerTooltip: 'विंग',
+        field: 'Wing',
+        filter: 'agTextColumnFilter',
+        sortable: true,
+        width: 200,
+      },
+      {
+        headerName: 'अपार्टमेंट/इमारत/चाळीचे नाव',
+        headerTooltip: 'अपार्टमेंट/इमारत/चाळीचे नाव',
+        field: 'Apartment_Building_Chawl_Name',
+        filter: 'agTextColumnFilter',
+        sortable: true,
+        width: 200,
+      },
+      {
+        headerName: 'क्षेत्र',
+        headerTooltip: 'क्षेत्र',
+        field: 'Area',
+        filter: 'agTextColumnFilter',
+        sortable: true,
+        width: 200,
+      },
+      {
+        headerName: 'लँडमार्क',
+        headerTooltip: 'लँडमार्क',
+        field: 'Landmark',
+        filter: 'agTextColumnFilter',
+        sortable: true,
+        width: 200,
+      },
+      {
+        headerName: 'स्टेशन शहर',
+        headerTooltip: 'स्टेशन शहर',
+        field: 'Station_City',
+        filter: 'agTextColumnFilter',
+        sortable: true,
+        width: 200,
+      },
+      {
+        headerName: 'updated date',
+        headerTooltip: 'updated date',
+        field: 'updated',
+        filter: 'agDateColumnFilter',
+        sortable: true,
+        hide: true,
+        width: 200,
+  // ✅ Convert string → DATE ONLY (no time, no UTC)
+  valueGetter: (params) => {
+    if (!params.data?.updated) return null;
+
+    const d = new Date(params.data.updated.replace(' ', 'T'));
+
+    return new Date(
+      d.getFullYear(),
+      d.getMonth(),
+      d.getDate()
+    );
+  },
+
+  filterParams: {
+    browserDatePicker: true,
+    clearButton: true
+  },
+
+  // UI formatting only
+  valueFormatter: (params) => {
+    if (!params.value) return '';
+    return params.value.toLocaleDateString('en-GB');
+  }
+      },
+{
+  headerName: 'Created Date',
+  field: 'created',
+  filter: 'agDateColumnFilter',
+  sortable: true,
+  width: 200,
+  hide: true,
+
+  // ✅ Convert string → DATE ONLY (no time, no UTC)
+  valueGetter: (params) => {
+    if (!params.data?.created) return null;
+
+    const d = new Date(params.data.created.replace(' ', 'T'));
+
+    return new Date(
+      d.getFullYear(),
+      d.getMonth(),
+      d.getDate()
+    );
+  },
+
+  filterParams: {
+    browserDatePicker: true,
+    clearButton: true
+  },
+
+  // UI formatting only
+  valueFormatter: (params) => {
+    if (!params.value) return '';
+    return params.value.toLocaleDateString('en-GB');
+  }
+},
+
+
+      {
+        field: 'UpdateRecord',
+        headerName: 'Update Record',
+        width: 50,
+        cellRenderer: this.actionCellRenderer.bind(this),
+        cellRendererParams: {
+          onClick: this.onEditClick.bind(this),
+        },
+        pinned: 'right',
+        filter: false,
+        sortable: false,
+      },
+      // Add remove action column only when viewing a favorite
+      ...(isFavoriteSelected
+        ? [
+            {
+              headerName: 'Actions',
+              field: 'actions',
+              width: 100,
+              filter: false,
+              sortable: false,
+              cellRenderer: (params: any) => {
+                return `
           <button class="btn btn-sm btn-outline-danger" 
                   onclick="this.removeVoter('${params.data.id}')"
                   title="Remove from favorite">
             <i class="fas fa-times"></i>
           </button>
         `;
-      }
-    }] : [])
-  ];
-}
+              },
+            },
+          ]
+        : []),
+    ];
+  }
 
-// action-cell-renderer.component.ts (or inline function)
-// actionCellRenderer(params: any) {
-//   const button = document.createElement('button');
-//   button.innerText = 'Edit';
-//   button.classList.add('btn', 'btn-sm', 'btn-primary');
+  // action-cell-renderer.component.ts (or inline function)
+  // actionCellRenderer(params: any) {
+  //   const button = document.createElement('button');
+  //   button.innerText = 'Edit';
+  //   button.classList.add('btn', 'btn-sm', 'btn-primary');
 
-//   // attach click handler
-//   button.addEventListener('click', () => {
-//     if (params.onClick) {
-//       params.onClick(params.data); // pass row data
-//     }
-//   });
+  //   // attach click handler
+  //   button.addEventListener('click', () => {
+  //     if (params.onClick) {
+  //       params.onClick(params.data); // pass row data
+  //     }
+  //   });
 
-//   return button;
-// }
+  //   return button;
+  // }
 
-actionCellRenderer(params: any) {
-  const div = document.createElement('div');
-  div.className = 'action-buttons';
-  
-  // Simple direct link
-  const link = document.createElement('a');
-  link.href = `/#/edit/${params.data.id}`;
-  link.target = '_blank';
-  link.className = 'btn btn-sm btn-primary';
-  link.innerHTML = '<i class="fas fa-edit"></i> Edit';
-  
-  div.appendChild(link);
-  return div;
-}
+  actionCellRenderer(params: any) {
+    const div = document.createElement('div');
+    div.className = 'action-buttons';
 
+    // Simple direct link
+    const link = document.createElement('a');
+    link.href = `/#/edit/${params.data.id}`;
+    link.target = '_blank';
+    link.className = 'btn btn-sm btn-primary';
+    link.innerHTML = '<i class="fas fa-edit"></i> Edit';
 
-    onEditClick(params: any) {
-      //http://localhost:4200/#/edit/2q8jvwnn79em57s
+    div.appendChild(link);
+    return div;
+  }
+
+  onEditClick(params: any) {
+    //http://localhost:4200/#/edit/2q8jvwnn79em57s
     this.router.navigate(['/edit', params.id]);
   }
 
-// Add this method to handle remove from grid
-removeVoterFromGrid(voterId: string): void {
-  this.removeVoterFromFavorite(voterId);
-}
+  // Add this method to handle remove from grid
+  removeVoterFromGrid(voterId: string): void {
+    this.removeVoterFromFavorite(voterId);
+  }
 
   onSelectionChanged(): void {
     this.selectedRows = this.gridApi.getSelectedRows();
@@ -236,7 +483,7 @@ removeVoterFromGrid(voterId: string): void {
     this.favorites = this.voterService.getFavorites();
   }
 
-    // Remove voter from favorite
+  // Remove voter from favorite
   removeVoterFromFavorite(voterId: string): void {
     if (this.selectedFavorite && this.selectedFavorite !== 'all') {
       this.voterService.removeVoterFromFavorite(this.selectedFavorite, voterId);
@@ -247,9 +494,16 @@ removeVoterFromGrid(voterId: string): void {
 
   // Remove selected voters from favorite
   removeSelectedVoters(): void {
-    if (this.selectedFavorite && this.selectedFavorite !== 'all' && this.selectedRows.length > 0) {
-      const voterIds = this.selectedRows.map(voter => voter.id);
-      this.voterService.removeVotersFromFavorite(this.selectedFavorite, voterIds);
+    if (
+      this.selectedFavorite &&
+      this.selectedFavorite !== 'all' &&
+      this.selectedRows.length > 0
+    ) {
+      const voterIds = this.selectedRows.map((voter) => voter.id);
+      this.voterService.removeVotersFromFavorite(
+        this.selectedFavorite,
+        voterIds
+      );
       this.loadFavorites();
       this.onFavoriteChange(); // Refresh the grid
       this.selectedRows = [];
@@ -259,7 +513,9 @@ removeVoterFromGrid(voterId: string): void {
   // Clear entire favorite list
   clearFavorite(): void {
     if (this.selectedFavorite && this.selectedFavorite !== 'all') {
-      if (confirm('Are you sure you want to clear all voters from this favorite?')) {
+      if (
+        confirm('Are you sure you want to clear all voters from this favorite?')
+      ) {
         this.voterService.clearFavorite(this.selectedFavorite);
         this.loadFavorites();
         this.onFavoriteChange(); // Refresh the grid
@@ -275,11 +531,14 @@ removeVoterFromGrid(voterId: string): void {
 
   // Remove voters from specific favorite
   removeVotersFromSpecificFavorite(voterIds: string[]): void {
-    this.voterService.removeVotersFromFavorite(this.selectedFavoriteForRemove, voterIds);
+    this.voterService.removeVotersFromFavorite(
+      this.selectedFavoriteForRemove,
+      voterIds
+    );
     this.loadFavorites();
     this.showRemoveModal = false;
     this.selectedFavoriteForRemove = '';
-    
+
     // If we're currently viewing this favorite, refresh the grid
     if (this.selectedFavorite === this.selectedFavoriteForRemove) {
       this.onFavoriteChange();
@@ -306,7 +565,7 @@ removeVoterFromGrid(voterId: string): void {
     if (this.selectedFavorite && this.selectedFavorite !== 'all') {
       const favorite = this.voterService.getFavoriteById(this.selectedFavorite);
       if (favorite) {
-        this.votersToRemove = favorite.voters.map(v => v.id);
+        this.votersToRemove = favorite.voters.map((v) => v.id);
       }
     }
   }
