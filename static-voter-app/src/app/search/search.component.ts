@@ -111,6 +111,7 @@ export class SearchComponent implements OnInit {
 मतदाता नाव: ${voter.name}
 भाग क्रमांक: ${voter.booth.split('/')[1]}
 मतदान कार्ड: ${voter.cardno}
+मतदान केंद्र: ${voter.polling_location}
 निशाणी: कमळ
 उमेदवार: पंकज दमयंती दत्तात्रेय देशमुख
 भारतीय जनता पार्टी
@@ -280,6 +281,7 @@ ${imageUrl}`;
 मतदाता नाव: ${voter.name}
 भाग क्रमांक: ${voter.booth.split('/')[1]}
 मतदान कार्ड: ${voter.cardno}
+मतदान केंद्र: ${voter.polling_location}
 निशाणी: कमळ
 उमेदवार: पंकज दमयंती दत्तात्रेय देशमुख
 भारतीय जनता पार्टी
@@ -510,6 +512,7 @@ Or simply type the number manually.
 मतदाता नाव: ${voter.name}
 भाग क्रमांक: ${voter.booth.split('/')[1]}
 मतदान कार्ड: ${voter.cardno}
+मतदान केंद्र: ${voter.polling_location}
 निशाणी: कमळ
 उमेदवार: पंकज दमयंती दत्तात्रेय देशमुख
 भारतीय जनता पार्टी

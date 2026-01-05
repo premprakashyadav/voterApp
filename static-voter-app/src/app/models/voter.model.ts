@@ -52,6 +52,7 @@ export interface Voter {
   addressN: string;
   pd_receiving_date_no_1: string;
   fullName: string;
+  polling_location: string;
 }
 
 export interface FavoriteList {
