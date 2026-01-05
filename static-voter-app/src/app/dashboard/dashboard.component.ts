@@ -342,8 +342,8 @@ export class DashboardComponent implements OnInit {
         hide: true,
       },
       {
-        headerName: 'Family QTY',
-        headerTooltip: 'Family QTY',
+        headerName: 'Family Code',
+        headerTooltip: 'Family Code',
         field: 'familycode',
         filter: 'agTextColumnFilter',
         sortable: true,
