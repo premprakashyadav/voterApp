@@ -53,6 +53,8 @@ export interface Voter {
   pd_receiving_date_no_1: string;
   fullName: string;
   polling_location: string;
+  whatsappSharedNumber: number;
+  smsSharedNumber: number;
 }
 
 export interface FavoriteList {

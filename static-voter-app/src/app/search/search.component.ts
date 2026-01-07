@@ -256,7 +256,6 @@ ${imageUrl}`;
   }
 
   shareAllOnWhatsApp(voter: Voter): void {
-    debugger;
     let mobileNumber = this.mobileNumbers[voter.id]
       ? this.mobileNumbers[voter.id]
       : voter.pd_receiving_date_no_1;
@@ -265,7 +264,6 @@ ${imageUrl}`;
   }
 
   shareOnCommon(voter: Voter, type: string, mobileNumber: string): void {
-    debugger;
     if (!mobileNumber) return;
     // Clean the mobile number (remove spaces, dashes, etc.)
     let cleanNumber;
@@ -291,10 +289,16 @@ ${imageUrl}`;
     if (type === 'sms') {
       // Send SMS
       encodedMessage = message;
+      this.pb.collection('corporatorElectionData').update(voter.id, {
+        smsSharedNumber: Number(cleanNumber),
+      });
       this.smsService.send(cleanNumber, encodedMessage);
       this.sent.emit({ phone: cleanNumber, method: 'sms' });
     } else if (type === 'whatsapp') {
       encodedMessage = encodeURIComponent(message);
+            this.pb.collection('corporatorElectionData').update(voter.id, {
+        whatsappSharedNumber: Number(cleanNumber),
+      });
       if (cleanNumber.length > 10 && cleanNumber.startsWith('91')) {
         whatsappUrl = `https://wa.me/+${cleanNumber}?text=${encodedMessage}`;
       } else if (cleanNumber.length === 10) {
