@@ -50,7 +50,10 @@ export class EditFormComponent implements OnInit {
       Apartment_Building_Chawl_Name: [''],
       Area: [''],
       Landmark: [''],
-      Station_City: ['']
+      Station_City: [''],
+      polling_location: [''],
+      cast: [''],
+      familyqty: [null],
     });
   }
 
@@ -81,7 +84,10 @@ export class EditFormComponent implements OnInit {
         Apartment_Building_Chawl_Name: record['Apartment_Building_Chawl_Name'] || '',
         Area: record['Area'] || '',
         Landmark: record['Landmark'] || '',
-        Station_City: record['Station_City'] || ''
+        Station_City: record['Station_City'] || '',
+        polling_location: record['polling_location'] || '',
+        cast: record['cast'] || '',
+        familyqty: record['familyqty'] || null,
       };
       
       this.editForm.patchValue(formData);

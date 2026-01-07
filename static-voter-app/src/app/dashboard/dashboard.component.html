@@ -4,6 +4,12 @@
     
     <div class="favorites-controls">
       <div class="favorite-dropdown">
+             <input style="min-width: 413px;"
+  type="text"
+  class="form-control"
+  placeholder="Global Search..."
+  (input)="onGlobalFilterChange($event)"
+/>
         <label>Favourites:</label>
           <select [(ngModel)]="selectedFavorite" (change)="onFavoriteChange()" class="form-control">
             <option value="all">All Voters</option>

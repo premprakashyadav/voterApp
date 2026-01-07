@@ -8,6 +8,7 @@ import {
   AllCommunityModule,
   GridOptions,
   CellContextMenuEvent,
+  RowNode,
 } from 'ag-grid-community';
 import { Voter, FavoriteList } from '../models/voter.model';
 import { themeQuartz } from 'ag-grid-community';
@@ -56,6 +57,7 @@ export class DashboardComponent implements OnInit {
   newFavoriteName: string = '';
   isLoading: boolean = false;
   showCreateFavoriteModal: boolean = false;
+  globalFilterText = '';
   private pb = new PocketBase('https://corporatorelectionnew.onrender.com');
   constructor(
     private voterService: VoterService,
@@ -104,9 +106,51 @@ export class DashboardComponent implements OnInit {
   }
   onGridReady(params: GridReadyEvent): void {
     this.gridApi = params.api;
+      this.gridApi.setGridOption(
+    'isExternalFilterPresent',
+    () => this.isExternalFilterPresent()
+  );
+
+  this.gridApi.setGridOption(
+    'doesExternalFilterPass',
+    (node: any) => this.doesExternalFilterPass(node)
+  );
     // Auto-size columns to fit content
     // params.api.sizeColumnsToFit();
   }
+
+  onGlobalFilterChange(event: Event) {
+  const value = (event.target as HTMLInputElement).value;
+  this.globalFilterText = value.toLowerCase();
+  this.gridApi.onFilterChanged();
+}
+
+isExternalFilterPresent = (): boolean => {
+  return !!this.globalFilterText;
+}
+
+doesExternalFilterPass = (node: RowNode): boolean => {
+  if (!this.globalFilterText) return true;
+
+  const searchText = this.globalFilterText;
+
+  return Object.keys(node.data).some((key) => {
+    const value = node.data[key];
+
+    if (value === null || value === undefined) return false;
+
+    // Handle Date
+    if (value instanceof Date) {
+      return value.toLocaleDateString('en-GB')
+        .toLowerCase()
+        .includes(searchText);
+    }
+
+    // Handle string / number
+    return value.toString().toLowerCase().includes(searchText);
+  });
+};
+
 
   resetAllFilters() {
     this.gridApi.setFilterModel(null);
@@ -356,6 +400,15 @@ export class DashboardComponent implements OnInit {
         field: 'polling_location',
         filter: 'agTextColumnFilter',
         sortable: true,
+        width: 200,
+      },
+            {
+        headerName: 'Record ID',
+        headerTooltip: 'Record ID',
+        field: 'id',
+        filter: 'agTextColumnFilter',
+        sortable: true,
+        hide: true,
         width: 200,
       },
       {
