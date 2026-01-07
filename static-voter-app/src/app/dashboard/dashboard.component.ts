@@ -233,6 +233,7 @@ doesExternalFilterPass = (node: RowNode): boolean => {
         headerTooltip: 'पूर्ण नाव',
         field: 'name',
         filter: 'agTextColumnFilter',
+        tooltipField: 'name',
         sortable: true,
         width: 250,
       },
@@ -242,6 +243,7 @@ doesExternalFilterPass = (node: RowNode): boolean => {
         field: 'fullname',
         filter: 'agTextColumnFilter',
         sortable: true,
+        tooltipField: 'fullname',
         width: 250,
         valueGetter: (params: any) => {
           return params.data.fullname;
@@ -292,6 +294,7 @@ doesExternalFilterPass = (node: RowNode): boolean => {
         headerTooltip: 'मोबाइल',
         field: 'pd_receiving_date_no_1',
         filter: 'agTextColumnFilter',
+        tooltipField: 'pd_receiving_date_no_1',
         sortable: true,
         width: 150,
       },
@@ -302,6 +305,7 @@ doesExternalFilterPass = (node: RowNode): boolean => {
         filter: 'agTextColumnFilter',
         sortable: true,
         hide: true,
+        tooltipField: 'pd_receiving_date_address',
         width: 150,
       },
       // {
@@ -349,6 +353,7 @@ doesExternalFilterPass = (node: RowNode): boolean => {
         headerTooltip: 'अपार्टमेंट/इमारत/चाळीचे नाव',
         field: 'Apartment_Building_Chawl_Name',
         filter: 'agTextColumnFilter',
+        tooltipField: 'Apartment_Building_Chawl_Name',
         sortable: true,
         width: 200,
       },
@@ -358,6 +363,7 @@ doesExternalFilterPass = (node: RowNode): boolean => {
         field: 'Area',
         filter: 'agTextColumnFilter',
         sortable: true,
+        tooltipField: 'Area',
         width: 200,
       },
       {
@@ -400,6 +406,7 @@ doesExternalFilterPass = (node: RowNode): boolean => {
         field: 'polling_location',
         filter: 'agTextColumnFilter',
         sortable: true,
+        tooltipField: 'polling_location',
         width: 200,
       },
             {
