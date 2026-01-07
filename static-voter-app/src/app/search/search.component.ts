@@ -103,7 +103,6 @@ export class SearchComponent implements OnInit {
     // cleanNumber = mobileNumber.replace(/\D/g, '');
     const imageUrl = 'https://photos.app.goo.gl/3RwR5fxFet8z14rz8';
     const message = `नमस्कार:
-यादी भाग क्र.: ${voter.yadibhag}
 वॉर्ड: ${voter.constno}
 अ. क्र: ${voter.vno}
 मतदाता नाव: ${voter.name}
@@ -269,7 +268,6 @@ ${imageUrl}`;
     // cleanNumber = mobileNumber.replace(/\D/g, '');
     const imageUrl = 'https://photos.app.goo.gl/3RwR5fxFet8z14rz8';
     const message = `नमस्कार:
-यादी भाग क्र.: ${voter.yadibhag}
 वॉर्ड: ${voter.constno}
 अ. क्र: ${voter.vno}
 मतदाता नाव: ${voter.name}
@@ -504,7 +502,6 @@ Or simply type the number manually.
   generateWhatsAppMessage(voter: Voter) {
     const imageUrl = 'https://photos.app.goo.gl/3RwR5fxFet8z14rz8';
     const message = `नमस्कार:
-यादी भाग क्र.: ${voter.yadibhag}
 वॉर्ड: ${voter.constno}
 अ. क्र: ${voter.vno}
 मतदाता नाव: ${voter.name}
