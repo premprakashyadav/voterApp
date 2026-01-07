@@ -65,10 +65,11 @@
         </div>
         <div class="card-body">
           <div class="voter-details">
-            <p><strong>यादी भाग क्र.:</strong> {{voter.yadibhag}}</p>
-            <p><strong>वॉर्ड / कॉलेज /विभाग क्रमांक:</strong> {{voter.constno}}</p>
+            <!-- <p><strong>यादी भाग क्र.:</strong> {{voter.yadibhag}}</p> -->
+            <p><strong>वॉर्ड:</strong> {{voter.constno}}</p>
             <p><strong>अ. क्र:</strong> {{voter.vno}}</p>
-            <p><strong>विधानसभा:</strong> {{voter.booth.split('/')[0]}}</p>
+            <p><strong>मतदाता नाव:</strong> {{voter.name}}</p>
+            <!-- <p><strong>विधानसभा:</strong> {{voter.booth.split('/')[0]}}</p> -->
             <!-- <p><strong>अनुक्रमांक भागात:</strong> {{voter.booth.split('/')[2]}}</p> -->
             <p><strong>भाग क्रमांक:</strong> {{voter.booth.split('/')[1]}}</p>
             <p><strong>मतदान कार्ड:</strong> {{voter.cardno}}</p>
