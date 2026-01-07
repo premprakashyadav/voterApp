@@ -101,13 +101,11 @@ export class SearchComponent implements OnInit {
     let cleanNumber;
     cleanNumber = mobileNumber.toString();
     // cleanNumber = mobileNumber.replace(/\D/g, '');
-    const imageUrl = 'https://photos.app.goo.gl/UQAjr436EscrhTLo7';
+    const imageUrl = 'https://photos.app.goo.gl/3RwR5fxFet8z14rz8';
     const message = `नमस्कार:
 यादी भाग क्र.: ${voter.yadibhag}
-वॉर्ड / कॉलेज /विभाग क्रमांक: ${voter.constno}
+वॉर्ड: ${voter.constno}
 अ. क्र: ${voter.vno}
-विधानसभा: ${voter.booth.split('/')[0]}
-अनुक्रमांक भागात: ${voter.booth.split('/')[2]}
 मतदाता नाव: ${voter.name}
 भाग क्रमांक: ${voter.booth.split('/')[1]}
 मतदान कार्ड: ${voter.cardno}
@@ -269,13 +267,11 @@ ${imageUrl}`;
     let cleanNumber;
     cleanNumber = mobileNumber.toString();
     // cleanNumber = mobileNumber.replace(/\D/g, '');
-    const imageUrl = 'https://photos.app.goo.gl/UQAjr436EscrhTLo7';
+    const imageUrl = 'https://photos.app.goo.gl/3RwR5fxFet8z14rz8';
     const message = `नमस्कार:
 यादी भाग क्र.: ${voter.yadibhag}
-वॉर्ड / कॉलेज /विभाग क्रमांक: ${voter.constno}
+वॉर्ड: ${voter.constno}
 अ. क्र: ${voter.vno}
-विधानसभा: ${voter.booth.split('/')[0]}
-अनुक्रमांक भागात: ${voter.booth.split('/')[2]}
 मतदाता नाव: ${voter.name}
 भाग क्रमांक: ${voter.booth.split('/')[1]}
 मतदान कार्ड: ${voter.cardno}
@@ -506,13 +502,11 @@ Or simply type the number manually.
   }
 
   generateWhatsAppMessage(voter: Voter) {
-    const imageUrl = 'https://photos.app.goo.gl/UQAjr436EscrhTLo7';
+    const imageUrl = 'https://photos.app.goo.gl/3RwR5fxFet8z14rz8';
     const message = `नमस्कार:
 यादी भाग क्र.: ${voter.yadibhag}
-वॉर्ड / कॉलेज /विभाग क्रमांक: ${voter.constno}
+वॉर्ड: ${voter.constno}
 अ. क्र: ${voter.vno}
-विधानसभा: ${voter.booth.split('/')[0]}
-अनुक्रमांक भागात: ${voter.booth.split('/')[2]}
 मतदाता नाव: ${voter.name}
 भाग क्रमांक: ${voter.booth.split('/')[1]}
 मतदान कार्ड: ${voter.cardno}
