@@ -110,7 +110,10 @@ export class SearchComponent implements OnInit {
 मतदान कार्ड: ${voter.cardno}
 मतदान केंद्र: ${voter.polling_location}
 निशाणी: कमळ
-उमेदवार: पंकज दमयंती दत्तात्रेय देशमुख
+उमेदवार: श्री. किशोर नाना पाटील (प्रभाग क्रमांक:१०अ)
+श्रीमती. एकता सिंह (डिंपल) (प्रभाग क्रमांक:१०ब)
+श्रीमती. अंजू ह. तिवारी (प्रभाग क्रमांक:१०क)
+श्री. पंकज दमयंती दत्तात्रेय देशमुख (प्रभाग क्रमांक:१०ड)
 भारतीय जनता पार्टी
 ${imageUrl}`;
     const encodedMessage = message;
@@ -263,8 +266,9 @@ ${imageUrl}`;
   shareOnCommon(voter: Voter, type: string, mobileNumber: string): void {
     if (!mobileNumber) return;
     // Clean the mobile number (remove spaces, dashes, etc.)
+    let mobileNumberNew = mobileNumber.replace(/\s+/g, '');
     let cleanNumber;
-    cleanNumber = mobileNumber.toString();
+    cleanNumber = mobileNumberNew.toString();
     // cleanNumber = mobileNumber.replace(/\D/g, '');
     const imageUrl = 'https://photos.app.goo.gl/3RwR5fxFet8z14rz8';
     const message = `नमस्कार:
@@ -275,7 +279,10 @@ ${imageUrl}`;
 मतदान कार्ड: ${voter.cardno}
 मतदान केंद्र: ${voter.polling_location}
 निशाणी: कमळ
-उमेदवार: पंकज दमयंती दत्तात्रेय देशमुख
+उमेदवार: श्री. किशोर नाना पाटील (प्रभाग क्रमांक:१०अ)
+श्रीमती. एकता सिंह (डिंपल) (प्रभाग क्रमांक:१०ब)
+श्रीमती. अंजू ह. तिवारी (प्रभाग क्रमांक:१०क)
+श्री. पंकज दमयंती दत्तात्रेय देशमुख (प्रभाग क्रमांक:१०ड)
 भारतीय जनता पार्टी
 ${imageUrl}`;
     let whatsappUrl;
@@ -509,7 +516,10 @@ Or simply type the number manually.
 मतदान कार्ड: ${voter.cardno}
 मतदान केंद्र: ${voter.polling_location}
 निशाणी: कमळ
-उमेदवार: पंकज दमयंती दत्तात्रेय देशमुख
+उमेदवार: श्री. किशोर नाना पाटील (प्रभाग क्रमांक:१०अ)
+श्रीमती. एकता सिंह (डिंपल) (प्रभाग क्रमांक:१०ब)
+श्रीमती. अंजू ह. तिवारी (प्रभाग क्रमांक:१०क)
+श्री. पंकज दमयंती दत्तात्रेय देशमुख (प्रभाग क्रमांक:१०ड)
 भारतीय जनता पार्टी
 ${imageUrl}`;
     const encodedMessage = encodeURIComponent(message);
