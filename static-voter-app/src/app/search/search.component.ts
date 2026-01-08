@@ -266,7 +266,8 @@ ${imageUrl}`;
   shareOnCommon(voter: Voter, type: string, mobileNumber: string): void {
     if (!mobileNumber) return;
     // Clean the mobile number (remove spaces, dashes, etc.)
-    let mobileNumberNew = mobileNumber.replace(/\s+/g, '');
+    let mobileNumberNew = mobileNumber.toString();
+    mobileNumberNew = mobileNumberNew.replace(/\s+/g, '');
     let cleanNumber;
     cleanNumber = mobileNumberNew.toString();
     // cleanNumber = mobileNumber.replace(/\D/g, '');
