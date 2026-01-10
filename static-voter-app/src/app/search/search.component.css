@@ -1,5 +1,5 @@
 .search-container {
-  padding: 20px;
+  padding: 10px;
   position: relative;
   z-index: 1;
 }
@@ -25,7 +25,7 @@
     vertical-align: top;
 }
 .search_section{
-  padding: 20px 0;
+  padding: 10px 0;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -290,7 +290,6 @@
 
     .footer_img{
       position: relative;
-    margin-top: -325px;
     z-index: 0;
     }
     .footer_img img{
@@ -311,7 +310,6 @@
   }
 
   .footer_img{
-    margin-top: -65px;
   }
   
 }
