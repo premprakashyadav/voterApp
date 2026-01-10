@@ -52,7 +52,7 @@ export class SearchComponent implements OnInit {
   isLoading: boolean = false;
 
   private pb = new PocketBase('https://corporatorelectionnew.onrender.com');
-  selectedField: { value: number; label: string; } = this.searchFields[0];
+  selectedField: { value: number; label: string; } = this.searchFields[1];
 
   constructor(
     private voterService: VoterService,

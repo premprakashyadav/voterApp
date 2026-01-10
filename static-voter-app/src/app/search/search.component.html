@@ -16,10 +16,10 @@
 <div class="search-container">
   <div class="search-form">
 <div class="form-group">
-<select id="searchField" class="form-control" (change)="searchLang($event)" class="form-control">
+<!-- <select id="searchField" class="form-control" (change)="searchLang($event)" class="form-control">
     <option value="1">Type below in Marathi</option>
     <option value="2">Type below in English</option>
-</select>
+</select> -->
 <ng-container *ngIf="selectedField.value === 1">
           <input class="form-control" type="text" id="firstname" placeholder="पहिले नाव"
         [(ngModel)]="firstname">
