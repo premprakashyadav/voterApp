@@ -9,6 +9,10 @@
   margin: 0 auto;
 }
 
+#searchField {
+  margin-bottom: 10px;
+}
+
 /* .search-form {
   display: flex;
   gap: 15px;

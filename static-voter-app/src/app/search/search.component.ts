@@ -21,17 +21,18 @@ export class SearchComponent implements OnInit {
   loading = false;
   showOptions = false;
   options: any[] = [];
-
   sent = output<{ phone: string; method: string }>();
   isSearched = false;
   searchFields = [
+    { value: 1, label: 'Marathi' },
+    { value: 2, label: 'English' }
     // { value: 'assembly_no', label: 'Assembly No' },
     // { value: 'part_no', label: 'Part No' },
     // { value: 'boothid', label: 'Booth ID' },
-    { value: 'e_first_name', label: 'First Name' },
-    { value: 'e_last_name', label: 'Last Name' },
+    //{ value: 'e_first_name', label: 'First Name' },
+   // { value: 'e_last_name', label: 'Last Name' },
     // { value: 'e_middle_name', label: 'Middle Name' },
-    { value: 'vcardid', label: 'Voter Card ID' },
+   // { value: 'vcardid', label: 'Voter Card ID' },
     // { value: 'e_assemblyname', label: 'Assembly Name' }
   ];
 
@@ -41,8 +42,8 @@ export class SearchComponent implements OnInit {
   isSafariIOS: boolean = false;
   browserInfo: string = '';
 
-  selectedField: string = '';
   firstname = '';
+  middleName = '';
   lastname = '';
   voterId = '';
   searchValue: string = '';
@@ -51,6 +52,7 @@ export class SearchComponent implements OnInit {
   isLoading: boolean = false;
 
   private pb = new PocketBase('https://corporatorelectionnew.onrender.com');
+  selectedField: { value: number; label: string; } = this.searchFields[0];
 
   constructor(
     private voterService: VoterService,
@@ -101,7 +103,7 @@ export class SearchComponent implements OnInit {
     let cleanNumber;
     cleanNumber = mobileNumber.toString();
     // cleanNumber = mobileNumber.replace(/\D/g, '');
-    const imageUrl = 'https://photos.app.goo.gl/3RwR5fxFet8z14rz8';
+    const imageUrl = 'https://photos.app.goo.gl/rJsAouPAE884okjx9';
     const message = `नमस्कार:
 वॉर्ड: ${voter.constno}
 अ. क्र: ${voter.vno}
@@ -134,122 +136,207 @@ ${imageUrl}`;
     return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   }
 
-  searchBasedPara(searchVal: any) {
-    this.searchResults = this.voterService.searchVoters(
-      this.selectedField,
-      searchVal
-    );
-    if (this.searchResults.length === 0) {
-      this.isSearched = true;
-    } else {
-      this.isSearched = false;
-    }
+  // searchBasedPara(searchVal: any) {
+  //   this.searchResults = this.voterService.searchVoters(
+  //     this.selectedField,
+  //     searchVal
+  //   );
+  //   if (this.searchResults.length === 0) {
+  //     this.isSearched = true;
+  //   } else {
+  //     this.isSearched = false;
+  //   }
+  // }
+
+async searchFamiliesDirect(payload: any): Promise<Record<string, any[]>> {
+
+  const escapeRegex = (value: string) =>
+    value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+  const buildCondition = (fieldName: string, value: string) => {
+    const escaped = escapeRegex(value).replace(/"/g, '\\"');
+    return `${fieldName} ~ "${escaped}"`;
+  };
+
+  let searchConditions = '';
+
+  /* =======================
+     CASE 1: Voter ID search
+     ======================= */
+  if (payload.voterId) {
+    searchConditions = buildCondition('cardno', payload.voterId.trim());
   }
 
-  async searchFamiliesDirect(
-    query: string,
-    field: string
-  ): Promise<Record<string, any[]>> {
-    const searchableFields = [
-      'name',
-      'hname',
-      'esurname',
-      'surname',
-      'name_english',
-      'Mobile',
-      'cardno',
-    ];
+  /* ==========================
+     CASE 2: Name-based search
+     ========================== */
+  else {
+    const nameConditions: string[] = [];
+    
 
-    const escapeRegex = (value: string) =>
-      value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-    const buildCondition = (fieldName: string, value: string) => {
-      const escaped = escapeRegex(value).replace(/"/g, '\\"');
-      return `${fieldName} ~ "${escaped}"`;
-    };
-
-    let searchConditions = '';
-    switch (field) {
-      case 'firstname':
-      case 'lastName':
-        searchConditions = [
-          buildCondition('name', query),
-          buildCondition('hname', query),
-          buildCondition('fullname', query),
-        ].join(' || ');
-        break;
-      case 'voterId':
-        searchConditions = buildCondition('cardno', query);
-        break;
-      default:
-        searchConditions = searchableFields
-          .map((f) => buildCondition(f, query))
-          .join(' || ');
+    if (payload?.hname) {
+      nameConditions.push(
+        buildCondition('hname', payload.hname.trim())
+      );
     }
 
-    try {
-      // Fetch all matching members with familyqty >= 1
-      const allMatchingMembers = await this.pb
-        .collection('corporatorElectionData')
-        .getFullList({
-          filter: `(${searchConditions}) && familyqty >= 1`,
-          sort: 'familycode, name',
-        });
-
-      // Group by familycode
-      const groupedByFamily: Record<string, any[]> = {};
-      allMatchingMembers.forEach((member: any) => {
-        const code = member.familycode.toString();
-        if (!groupedByFamily[code]) groupedByFamily[code] = [];
-        groupedByFamily[code].push(member);
-      });
-
-      return groupedByFamily;
-    } catch (error: any) {
-      console.error('Search error details:', {
-        message: error.message,
-        status: error.status,
-        data: error.data,
-      });
-      throw error;
+        if (payload.name_english) {
+      nameConditions.push(
+        buildCondition('name_english', payload.name_english.trim())
+      );
     }
+
+    if (payload.relative) {
+      nameConditions.push(
+        buildCondition('relative', payload.relative.trim())
+      );
+    }
+
+      if (payload.relative_english) {
+      nameConditions.push(
+        buildCondition('relative_english', payload.relative_english.trim())
+      );
+    }
+
+        if (payload.surname) {
+      nameConditions.push(
+        buildCondition('surname', payload.surname.trim()),
+      );
+    }
+
+    if (payload.esurname) {
+      nameConditions.push(
+        buildCondition('esurname', payload.esurname.trim())
+      );
+    }
+
+    if (nameConditions.length === 0) {
+      throw new Error('No valid search fields provided');
+    }
+
+    searchConditions = nameConditions.join(' && ');
   }
 
-  onSearch(): void {
-    const query = this.firstname || this.lastname || this.voterId;
-    let field: 'firstname' | 'lastName' | 'voterId' | null = null;
+  try {
+    const allMatchingMembers = await this.pb
+      .collection('corporatorElectionData')
+      .getFullList({
+        filter: `(${searchConditions}) && familyqty >= 1`,
+        sort: 'familycode, name',
+      });
 
-    if (this.firstname) field = 'firstname';
-    else if (this.lastname) field = 'lastName';
-    else if (this.voterId) field = 'voterId';
+    /* ================
+       Group by family
+       ================ */
+    const groupedByFamily: Record<string, any[]> = {};
 
-    // Reset other input fields
-    this.firstname = field === 'firstname' ? this.firstname : '';
-    this.lastname = field === 'lastName' ? this.lastname : '';
-    this.voterId = field === 'voterId' ? this.voterId : '';
+    allMatchingMembers.forEach((member: any) => {
+      const code = member.familycode.toString();
+      if (!groupedByFamily[code]) groupedByFamily[code] = [];
+      groupedByFamily[code].push(member);
+    });
 
-    if (!query || !field) {
-      this.isSearched = true;
-      this.searchResults = [];
-      return;
+    return groupedByFamily;
+  } catch (error: any) {
+    console.error('Search error details:', {
+      message: error.message,
+      status: error.status,
+      data: error.data,
+    });
+    throw error;
+  }
+}
+
+
+onSearch() {
+  let payload: any = {};
+
+  /* ======================
+     PRIORITY: VOTER ID
+     ====================== */
+  if (this.voterId) {
+    payload.voterId = this.voterId.trim();
+
+    // reset others
+    this.firstname = '';
+    this.middleName = '';
+    this.lastname = '';
+  }
+
+  /* ======================
+     NAME BASED SEARCH
+     ====================== */
+  else {
+    if (this.selectedField.value === 1) {
+    // Marathi
+    if (this.firstname) {
+      payload.hname = this.firstname.trim();
     }
 
-    this.spinner.show();
+    if (this.middleName) {
+      payload.relative = this.middleName.trim();
+    }
 
-    this.searchFamiliesDirect(query, field)
-      .then((resultsGrouped) => {
-        // Flatten all members into a single array
-        this.searchResults = Object.values(resultsGrouped).flat();
-        this.isSearched = this.searchResults.length === 0;
-        this.spinner.hide();
-      })
-      .catch((error) => {
-        console.error('Search error:', error);
-        this.searchResults = [];
-        this.isSearched = true;
-        this.spinner.hide();
-      });
+    if (this.lastname) {
+      payload.surname = this.lastname.trim();
+    }
+    }
+
+    else if (this.selectedField.value === 2) {
+    // English
+    if (this.firstname) {
+      payload.name_english = this.firstname.trim();
+    }
+
+    if (this.middleName) {
+      payload.relative_english = this.middleName.trim();
+    }
+
+    if (this.lastname) {
+      payload.esurname = this.lastname.trim();
+    }
+    }
+
+    // reset unused fields
+    this.firstname = payload.hname || payload.name_english ? this.firstname : '';
+    this.middleName = payload.relative || payload.relative_english ? this.middleName : '';
+    this.lastname = payload.surname || payload.esurname ? this.lastname : '';
   }
+
+  /* ======================
+     VALIDATION
+     ====================== */
+  if (Object.keys(payload).length === 0) {
+    this.isSearched = true;
+    this.searchResults = [];
+    return;
+  }
+
+  /* ======================
+     API CALL
+     ====================== */
+  //this.searchFamiliesDirect(payload);
+  this.spinner.show();
+              this.searchFamiliesDirect(payload)
+          .then((resultsGrouped) => {
+            this.firstname = '';
+            this.middleName = '';
+            this.lastname = '';
+            this.voterId =  '';
+            // Flatten all members into a single array
+            this.searchResults = Object.values(resultsGrouped).flat();
+            this.isSearched = this.searchResults.length === 0;
+            this.spinner.hide();
+          })
+          .catch((error) => {
+            console.error('Search error:', error);
+            this.searchResults = [];
+            this.isSearched = true;
+            this.spinner.hide();
+          });
+
+}
+
 
   onMobileNumberChange(voterId: string, number: string): void {
     this.mobileNumbers[voterId] = number;
@@ -271,7 +358,7 @@ ${imageUrl}`;
     let cleanNumber;
     cleanNumber = mobileNumberNew.toString();
     // cleanNumber = mobileNumber.replace(/\D/g, '');
-    const imageUrl = 'https://photos.app.goo.gl/3RwR5fxFet8z14rz8';
+    const imageUrl = 'https://photos.app.goo.gl/rJsAouPAE884okjx9';
     const message = `नमस्कार:
 वॉर्ड: ${voter.constno}
 अ. क्र: ${voter.vno}
@@ -325,7 +412,7 @@ ${imageUrl}`;
   }
 
   clearSearch(): void {
-    this.selectedField = '';
+    this.selectedField = this.searchFields[1];
     this.searchValue = '';
     this.searchResults = [];
   }
@@ -508,7 +595,7 @@ Or simply type the number manually.
   }
 
   generateWhatsAppMessage(voter: Voter) {
-    const imageUrl = 'https://photos.app.goo.gl/3RwR5fxFet8z14rz8';
+    const imageUrl = 'https://photos.app.goo.gl/rJsAouPAE884okjx9';
     const message = `नमस्कार:
 वॉर्ड: ${voter.constno}
 अ. क्र: ${voter.vno}
@@ -559,4 +646,13 @@ ${imageUrl}`;
     // You can integrate with analytics services here
     // Example: Google Analytics, etc.
   }
+
+  searchLang(event: any) {
+    debugger;
+    const selectedValue = event.target.value;
+    this.selectedField = this.searchFields.find(
+      (field) => field.value === Number(selectedValue)
+    )!;
+  }
+
 }

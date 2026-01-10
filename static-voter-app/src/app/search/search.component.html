@@ -16,17 +16,45 @@
 <div class="search-container">
   <div class="search-form">
 <div class="form-group">
-  <input class="form-control" type="text" id="firstname" placeholder="पहिले नाव"
+<select id="searchField" class="form-control" (change)="searchLang($event)" class="form-control">
+    <option value="1">Type below in Marathi</option>
+    <option value="2">Type below in English</option>
+</select>
+<ng-container *ngIf="selectedField.value === 1">
+          <input class="form-control" type="text" id="firstname" placeholder="पहिले नाव"
         [(ngModel)]="firstname">
-        <strong class="orStyle">OR</strong>
+        <strong class="orStyle">किंवा</strong>
+         <input class="form-control" type="text" id="middleName" placeholder="मध्य नाव"
+        [(ngModel)]="middleName">
+        <strong class="orStyle">किंवा</strong>
          <input class="form-control" type="text" id="lastname" placeholder="आडनाव"
         [(ngModel)]="lastname">
-        <strong class="orStyle">OR</strong>
+        <strong class="orStyle">किंवा</strong>
          <input class="form-control" type="text" id="voterId" placeholder="मतदान कार्ड क्रमांक"
         [(ngModel)]="voterId">
-        <button class="btn btn-saffron" (click)="onSearch()">
-      शोध
+          <button class="btn btn-saffron" (click)="onSearch()">
+      शोधा
     </button>
+</ng-container>
+
+<ng-container *ngIf="selectedField.value === 2">
+        <input class="form-control" type="text" id="firstname" placeholder="First Name"
+        [(ngModel)]="firstname">
+        <strong class="orStyle">OR</strong>
+        <input class="form-control" type="text" id="middleName" placeholder="Middle Name"
+        [(ngModel)]="middleName">
+        <strong class="orStyle">OR</strong>
+         <input class="form-control" type="text" id="lastname" placeholder="Last Name"
+        [(ngModel)]="lastname">
+        <strong class="orStyle">OR</strong>
+         <input class="form-control" type="text" id="voterId" placeholder="EPIC Number"
+        [(ngModel)]="voterId">
+          <button class="btn btn-saffron" (click)="onSearch()">
+      Search
+    </button>
+</ng-container>
+
+      
 </div>
 
       <!-- <select id="searchField" [(ngModel)]="selectedField" class="form-control">
