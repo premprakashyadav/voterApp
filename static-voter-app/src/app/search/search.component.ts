@@ -53,7 +53,6 @@ export class SearchComponent implements OnInit {
 
   private pb = new PocketBase('https://corporatorelectionnew.onrender.com');
   selectedField: { value: number; label: string; } = this.searchFields[1];
-
   constructor(
     private voterService: VoterService,
     private spinner: NgxSpinnerService,
@@ -398,6 +397,7 @@ ${imageUrl}`;
     }
   }
 
+  
   // Export filtered data
   exportData(): void {
     let filter = '';
@@ -415,6 +415,19 @@ ${imageUrl}`;
     this.selectedField = this.searchFields[1];
     this.searchValue = '';
     this.searchResults = [];
+  }
+
+    /* ========== UPDATE API ========= */
+  async onToggleChange(voter: any, event: any) {
+    const value = event.target.checked;
+    const previousValue = voter.isVoted;
+    voter.isVoted = Boolean(value); // optimistic update
+    
+      // Update record in PocketBase
+      const updatedRecord = await this.pb.collection('corporatorElectionData').update(voter.id, {isVoted: voter.isVoted});
+      
+      // Show success message
+      this.showMessage('Record updated successfully!', 'success');
   }
 
   // Enhanced browser detection
@@ -653,6 +666,30 @@ ${imageUrl}`;
     this.selectedField = this.searchFields.find(
       (field) => field.value === Number(selectedValue)
     )!;
+  }
+
+    private showMessage(message: string, type: 'success' | 'error' | 'info' = 'info') {
+    // Create and show toast message
+    const toast = document.createElement('div');
+    toast.className = `toaster-parent toast-message ${type}`;
+    toast.innerHTML = `
+      <div class="toast-content">
+        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+        <span>${message}</span>
+      </div>
+    `;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+      toast.classList.add('show');
+    }, 100);
+    
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => {
+      document.body.removeChild(toast);
+      }, 300);
+    }, 3000);
   }
 
 }

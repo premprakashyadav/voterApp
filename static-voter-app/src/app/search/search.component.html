@@ -107,6 +107,16 @@
             <!-- <p><strong>पत्ता:</strong> {{voter.addressN}}</p> -->
             <!-- <p><strong>रिलेटीव चे नाव:</strong> {{voter.relative}}</p> -->
           </div>
+                      <div class="toggle-group">
+                       <strong> मतदान केले आहे : </strong>
+<label class="switch">
+  <input type="checkbox"
+         [checked]="voter.isVoted"
+         (change)="onToggleChange(voter, $event)">
+  <span class="slider"></span>
+</label>
+
+          </div>
           
           <div class="whatsapp-section">
             <div class="mobile-input">

@@ -55,6 +55,7 @@ export interface Voter {
   polling_location: string;
   whatsappSharedNumber: number;
   smsSharedNumber: number;
+  isVoted: boolean;
 }
 
 export interface FavoriteList {
