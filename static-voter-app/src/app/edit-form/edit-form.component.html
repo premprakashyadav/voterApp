@@ -107,6 +107,22 @@
           </div>
         </div>
 
+                <div class="col-md-3">
+          <div class="toggle-group">
+            <label>Voted</label>
+            <div class="toggle-switch">
+              <button type="button" 
+                      class="btn toggle-btn"
+                      [ngClass]="getToggleClass('isVoted')"
+                      (click)="toggleBooleanField('isVoted')">
+                <i class="fas" [ngClass]="getToggleIcon('isVoted')"></i>
+                {{ getToggleText('isVoted') }}
+              </button>
+              <small class="toggle-hint">Whether the record is active</small>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <div class="row">

@@ -106,51 +106,49 @@ export class DashboardComponent implements OnInit {
   }
   onGridReady(params: GridReadyEvent): void {
     this.gridApi = params.api;
-      this.gridApi.setGridOption(
-    'isExternalFilterPresent',
-    () => this.isExternalFilterPresent()
-  );
+    this.gridApi.setGridOption('isExternalFilterPresent', () =>
+      this.isExternalFilterPresent()
+    );
 
-  this.gridApi.setGridOption(
-    'doesExternalFilterPass',
-    (node: any) => this.doesExternalFilterPass(node)
-  );
+    this.gridApi.setGridOption('doesExternalFilterPass', (node: any) =>
+      this.doesExternalFilterPass(node)
+    );
     // Auto-size columns to fit content
     // params.api.sizeColumnsToFit();
   }
 
   onGlobalFilterChange(event: Event) {
-  const value = (event.target as HTMLInputElement).value;
-  this.globalFilterText = value.toLowerCase();
-  this.gridApi.onFilterChanged();
-}
+    const value = (event.target as HTMLInputElement).value;
+    this.globalFilterText = value.toLowerCase();
+    this.gridApi.onFilterChanged();
+  }
 
-isExternalFilterPresent = (): boolean => {
-  return !!this.globalFilterText;
-}
+  isExternalFilterPresent = (): boolean => {
+    return !!this.globalFilterText;
+  };
 
-doesExternalFilterPass = (node: RowNode): boolean => {
-  if (!this.globalFilterText) return true;
+  doesExternalFilterPass = (node: RowNode): boolean => {
+    if (!this.globalFilterText) return true;
 
-  const searchText = this.globalFilterText;
+    const searchText = this.globalFilterText;
 
-  return Object.keys(node.data).some((key) => {
-    const value = node.data[key];
+    return Object.keys(node.data).some((key) => {
+      const value = node.data[key];
 
-    if (value === null || value === undefined) return false;
+      if (value === null || value === undefined) return false;
 
-    // Handle Date
-    if (value instanceof Date) {
-      return value.toLocaleDateString('en-GB')
-        .toLowerCase()
-        .includes(searchText);
-    }
+      // Handle Date
+      if (value instanceof Date) {
+        return value
+          .toLocaleDateString('en-GB')
+          .toLowerCase()
+          .includes(searchText);
+      }
 
-    // Handle string / number
-    return value.toString().toLowerCase().includes(searchText);
-  });
-};
-
+      // Handle string / number
+      return value.toString().toLowerCase().includes(searchText);
+    });
+  };
 
   resetAllFilters() {
     this.gridApi.setFilterModel(null);
@@ -298,7 +296,7 @@ doesExternalFilterPass = (node: RowNode): boolean => {
         sortable: true,
         width: 150,
       },
-            {
+      {
         headerName: 'PD Address',
         headerTooltip: 'PD Address',
         field: 'pd_receiving_date_address',
@@ -409,7 +407,7 @@ doesExternalFilterPass = (node: RowNode): boolean => {
         tooltipField: 'polling_location',
         width: 200,
       },
-            {
+      {
         headerName: 'Record ID',
         headerTooltip: 'Record ID',
         field: 'id',
@@ -418,7 +416,7 @@ doesExternalFilterPass = (node: RowNode): boolean => {
         hide: true,
         width: 200,
       },
-                  {
+      {
         headerName: 'Whatsapp Shared Number',
         headerTooltip: 'Whatsapp Shared Number',
         field: 'whatsappSharedNumber',
@@ -427,7 +425,7 @@ doesExternalFilterPass = (node: RowNode): boolean => {
         hide: true,
         width: 200,
       },
-                  {
+      {
         headerName: 'SMS Shared Number',
         headerTooltip: 'SMS Shared Number',
         field: 'smsSharedNumber',
@@ -437,6 +435,21 @@ doesExternalFilterPass = (node: RowNode): boolean => {
         width: 200,
       },
       {
+        headerName: 'Voted',
+        headerTooltip: 'Voted',
+        field: 'isVoted',
+        sortable: true,
+        filter: 'agSetColumnFilter',
+        width: 200,
+
+        valueFormatter: (p) => (p.value ? 'Yes' : 'No'),
+
+        filterParams: {
+          values: [true, false],
+          valueFormatter: (p: any) => (p.value ? 'Yes' : 'No'),
+        },
+      },
+      {
         headerName: 'updated date',
         headerTooltip: 'updated date',
         field: 'updated',
@@ -444,63 +457,54 @@ doesExternalFilterPass = (node: RowNode): boolean => {
         sortable: true,
         hide: true,
         width: 200,
-  // ✅ Convert string → DATE ONLY (no time, no UTC)
-  valueGetter: (params) => {
-    if (!params.data?.updated) return null;
+        // ✅ Convert string → DATE ONLY (no time, no UTC)
+        valueGetter: (params) => {
+          if (!params.data?.updated) return null;
 
-    const d = new Date(params.data.updated.replace(' ', 'T'));
+          const d = new Date(params.data.updated.replace(' ', 'T'));
 
-    return new Date(
-      d.getFullYear(),
-      d.getMonth(),
-      d.getDate()
-    );
-  },
+          return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        },
 
-  filterParams: {
-    browserDatePicker: true,
-    clearButton: true
-  },
+        filterParams: {
+          browserDatePicker: true,
+          clearButton: true,
+        },
 
-  // UI formatting only
-  valueFormatter: (params) => {
-    if (!params.value) return '';
-    return params.value.toLocaleDateString('en-GB');
-  }
+        // UI formatting only
+        valueFormatter: (params) => {
+          if (!params.value) return '';
+          return params.value.toLocaleDateString('en-GB');
+        },
       },
-{
-  headerName: 'Created Date',
-  field: 'created',
-  filter: 'agDateColumnFilter',
-  sortable: true,
-  width: 200,
-  hide: true,
+      {
+        headerName: 'Created Date',
+        field: 'created',
+        filter: 'agDateColumnFilter',
+        sortable: true,
+        width: 200,
+        hide: true,
 
-  // ✅ Convert string → DATE ONLY (no time, no UTC)
-  valueGetter: (params) => {
-    if (!params.data?.created) return null;
+        // ✅ Convert string → DATE ONLY (no time, no UTC)
+        valueGetter: (params) => {
+          if (!params.data?.created) return null;
 
-    const d = new Date(params.data.created.replace(' ', 'T'));
+          const d = new Date(params.data.created.replace(' ', 'T'));
 
-    return new Date(
-      d.getFullYear(),
-      d.getMonth(),
-      d.getDate()
-    );
-  },
+          return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        },
 
-  filterParams: {
-    browserDatePicker: true,
-    clearButton: true
-  },
+        filterParams: {
+          browserDatePicker: true,
+          clearButton: true,
+        },
 
-  // UI formatting only
-  valueFormatter: (params) => {
-    if (!params.value) return '';
-    return params.value.toLocaleDateString('en-GB');
-  }
-},
-
+        // UI formatting only
+        valueFormatter: (params) => {
+          if (!params.value) return '';
+          return params.value.toLocaleDateString('en-GB');
+        },
+      },
 
       {
         field: 'UpdateRecord',

@@ -16,6 +16,12 @@ export class EditFormComponent implements OnInit {
   private pb: PocketBase;
   private readonly COLLECTION_NAME = 'corporatorElectionData';
 
+    // Boolean toggle options
+  booleanOptions = [
+    { value: true, label: 'Yes', class: 'success' },
+    { value: false, label: 'No', class: 'secondary' }
+  ];
+
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
@@ -54,6 +60,7 @@ export class EditFormComponent implements OnInit {
       polling_location: [''],
       cast: [''],
       familyqty: [null],
+      isVoted: [false],
     });
   }
 
@@ -88,6 +95,7 @@ export class EditFormComponent implements OnInit {
         polling_location: record['polling_location'] || '',
         cast: record['cast'] || '',
         familyqty: record['familyqty'] || null,
+        isVoted: record['isVoted'] !== undefined ? record['isVoted'] : false,
       };
       
       this.editForm.patchValue(formData);
@@ -125,6 +133,12 @@ export class EditFormComponent implements OnInit {
         formData.pd_receiving_date_no_1 = Number(formData.pd_receiving_date_no_1);
       }
 
+       // Ensure boolean fields are actual booleans
+      const booleanFields = ['isVoted'];
+      booleanFields.forEach(field => {
+        formData[field] = Boolean(formData[field]);
+      });
+
       // Update record in PocketBase
       const updatedRecord = await this.pb.collection(this.COLLECTION_NAME).update(this.recordId, formData);
       
@@ -144,6 +158,32 @@ export class EditFormComponent implements OnInit {
       this.isSaving = false;
     }
   }
+
+  // Toggle boolean field
+  toggleBooleanField(fieldName: string): void {
+    const currentValue = this.editForm.get(fieldName)?.value;
+    this.editForm.get(fieldName)?.setValue(!currentValue);
+    this.editForm.markAsDirty();
+  }
+
+    // Get toggle button class based on value
+  getToggleClass(fieldName: string): string {
+    const value = this.editForm.get(fieldName)?.value;
+    return value ? 'btn-success' : 'btn-secondary';
+  }
+
+  // Get toggle button text
+  getToggleText(fieldName: string): string {
+    const value = this.editForm.get(fieldName)?.value;
+    return value ? 'Yes' : 'No';
+  }
+
+  // Get icon for boolean field
+  getToggleIcon(fieldName: string): string {
+    const value = this.editForm.get(fieldName)?.value;
+    return value ? 'fa-toggle-on' : 'fa-toggle-off';
+  }
+
 
   private updateGridAndNavigate(updatedRecord: any) {
     // Pass updated data back to grid component
